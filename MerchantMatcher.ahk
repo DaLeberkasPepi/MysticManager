@@ -47,138 +47,139 @@ ButtonStart:
 	GuiControlGet, DDL
 	if (DDL = "2560x1440")
 	{
-	resX=2560
+		resX=2560
 	}
 		
 	if (DDL = "1920x1080")
 	{
-	resX=1920
+		resX=1920
 	}
 	
 	if (DDL = "1680x1050")
 	{
-	resX=1680
+		resX=1680
 	}	
 	if (DDL = "1280x720")
 	{
-	resX=1280
+		resX=1280
 	}
 	
 	if (DDL = "Custom")
 	{	
-	GuiControlGet, OCRheight
-	GuiControlGet, OCRwidth
-	GuiControlGet, TextLeftPosX
-	GuiControlGet, TextLeftPosY
-	GuiControlGet, ButtonX
-	GuiControlGet, ButtonY
-	resX= 12345
+		GuiControlGet, OCRheight
+		GuiControlGet, OCRwidth
+		GuiControlGet, TextLeftPosX
+		GuiControlGet, TextLeftPosY
+		GuiControlGet, ButtonX
+		GuiControlGet, ButtonY
+		resX= 12345
 	}
 
 GuiControlGet, Attribute
-	if (Attribute = "Area Damage")
-	{
+if (Attribute = "Area Damage")
+{
 	trimNumL=17
 	trimNumR=2
 	wish=Area Damage
-	}
-	if (Attribute = "Cooldown")
-	{
+}
+
+if (Attribute = "Cooldown")
+{
 	trimNumL=36
 	trimNumR=2
 	wish=cooldown
-	}
-	if (Attribute = "Thorns")
-	{
+}
+
+if (Attribute = "Thorns")
+{
 	trimNumL=5
 	trimNumR=4
 	wish=Thorns
-	}
-	if (Attribute = "CHD")
-	{
+}
+
+if (Attribute = "CHD")
+{
 	trimNumL=36
 	trimNumR=3
 	wish=Critical Hit Damage
-	}
-	if (Attribute = "CHC")
-	{
+}
+
+if (Attribute = "CHC")
+{
 	trimNumL=36
 	trimNumR=3
 	wish=Critical Hit Chance
-	}
-	if (Attribute = "Custom")
-	{
+}
+
+if (Attribute = "Custom")
+{
 	GuiControlGet, trimNumL
 	GuiControlGet, trimNumR
 	GuiControlGet, wish
-	}
+}
 
 GuiControlGet, tries
 If (tries = "")
-	{
+{
 	tries = 1
-	}
+}
 
 GuiControlGet, wishNum
 If (wishNum = "")
-	{
+{
 	Exit
-	}
-	
+}
 	
 If resX=2560
 {
-;x & y position of second possibility 
-TextLeftPosX=100 
-TextLeftPosY=554
-;width and height of OCR rectangle
-OCRwidth=530
-OCRheight=58
-;middle of button
-ButtonX=333
-ButtonY=1040
+	;x & y position of second possibility 
+	TextLeftPosX=100 
+	TextLeftPosY=554
+	;width and height of OCR rectangle
+	OCRwidth=530
+	OCRheight=58
+	;middle of button
+	ButtonX=333
+	ButtonY=1040
 }
 
 If resX=1920 
 {
-;x & y position of second possibility 
-TextLeftPosX=78 
-TextLeftPosY=418
-;width and height of OCR rectangle
-OCRwidth=400
-OCRheight=44
-;middle of button
-ButtonX=262
-ButtonY=781
+	;x & y position of second possibility 
+	TextLeftPosX=78 
+	TextLeftPosY=418
+	;width and height of OCR rectangle
+	OCRwidth=400
+	OCRheight=44
+	;middle of button
+	ButtonX=262
+	ButtonY=781
 }
 
 If resX=1680 
 {
-;x & y position of second possibility 
-TextLeftPosX=75 
-TextLeftPosY=410
-;width and height of OCR rectangle
-OCRwidth=380
-OCRheight=34
-;middle of button
-ButtonX=247
-ButtonY=763
+	;x & y position of second possibility 
+	TextLeftPosX=75 
+	TextLeftPosY=410	
+	;width and height of OCR rectangle
+	OCRwidth=380
+	OCRheight=34
+	;middle of button
+	ButtonX=247
+	ButtonY=763
 }
-
-
-
 
 If resX=1280 
 {
-;x & y position of second possibility 
-TextLeftPosX=53 
-TextLeftPosY=278
-;width and height of OCR rectangle
-OCRwidth=264
-OCRheight=29
-;middle of button
-ButtonX=170
-ButtonY=519
+	;x & y position of second possibility 
+	TextLeftPosX=53 
+	TextLeftPosY=278
+	;width and height of OCR rectangle
+	OCRwidth=264
+	OCRheight=29
+	;middle of button
+	ButtonX=170
+	ButtonY=519
 }
 
 ;Just some other variables 
@@ -187,53 +188,50 @@ EnchantmentPause=1500
 OCRPause=1200
 
 ;Start of the script. You have to be at the enchantress and the item has to be at least once enchanted (else you would have to enter the attribute you wanted to change which would be a waste of time)
- 
-
-
 
 Loop %tries% 
 {
-FileAppend, `nStart`n, %LogFile%
-FileAppend, `nwish: %wish%`n, %LogFile%
-
-MouseMove, %ButtonX%, %ButtonY% ;Move to the Replace property button.
-Sleep, %Pause1% ;wait a little (you have to wait to not lose some clicks)
-MouseClick, Left ;Click
-Sleep, %EnchantmentPause% ;and wait for the enchantments to come up.
-
-;OCR the second possibility. Mathematical operations not possible with capture2text... So at first some calculations...
-TextRightPosX:=TextLeftPosX + OCRwidth
-TextRightPosY:=TextLeftPosY + OCRheight
-
-Run, e:\d3\capture2text.exe %TextLeftPosX% %TextLeftPosY% %TextRightPosX% %TextRightPosY%
-Sleep, %OCRPause%
-
-FileAppend, `n2nd`n, %LogFile%
-FileAppend, `nClipboard %clipboard%`n, %LogFile%
-;StringLeft, strLeft, clipboard, %trimNumL%
-;FileAppend, Left String %strLeft%`n, %LogFile%
-;StringRight, strRight, strLeft, %trimNumR%
-;FileAppend, Right String %strRight%`n, %LogFile%
-
-FoundPos := RegExMatch(Clipboard , "[\d]+(\.\d)?", compNum)
-;MsgBox , %FoundPos%
-;MsgBox , %compNum%
-
-;Check the results
-If clipboard contains %wish% ;only if the wish is in the clipboard...
-{
-If (compNum>wishNum) ;Compare OCR & string manipulation results with wish number
-{
-;If true, select second possibility, click it and select it. Then Exit Script. Calculate y-position of middle of possibility 2 first.
-pos2y:=TextLeftPosY+0.5*OCRheight
-MouseMove %ButtonX%,%pos2y%
-Sleep, %Pause1%
-MouseClick, Left
-MouseMove %ButtonX%, %ButtonY%
-Sleep, %Pause1%
-MouseClick, Left
-Exit
-}
+	FileAppend, `nStart`n, %LogFile%
+	FileAppend, `nwish: %wish%`n, %LogFile%
+	
+	MouseMove, %ButtonX%, %ButtonY% ;Move to the Replace property button.
+	Sleep, %Pause1% ;wait a little (you have to wait to not lose some clicks)
+	MouseClick, Left ;Click
+	Sleep, %EnchantmentPause% ;and wait for the enchantments to come up.
+	
+	;OCR the second possibility. Mathematical operations not possible with capture2text... So at first some calculations...
+	TextRightPosX:=TextLeftPosX + OCRwidth
+	TextRightPosY:=TextLeftPosY + OCRheight
+	
+	Run, e:\d3\capture2text.exe %TextLeftPosX% %TextLeftPosY% %TextRightPosX% %TextRightPosY%
+	Sleep, %OCRPause%
+	
+	FileAppend, `n2nd`n, %LogFile%
+	FileAppend, `nClipboard %clipboard%`n, %LogFile%
+	;StringLeft, strLeft, clipboard, %trimNumL%
+	;FileAppend, Left String %strLeft%`n, %LogFile%
+	;StringRight, strRight, strLeft, %trimNumR%
+	;FileAppend, Right String %strRight%`n, %LogFile%
+	
+	FoundPos := RegExMatch(Clipboard , "[\d]+(\.\d)?", compNum)
+	;MsgBox , %FoundPos%
+	;MsgBox , %compNum%
+	
+	;Check the results
+	If clipboard contains %wish% ;only if the wish is in the clipboard...
+	{
+		If (compNum>wishNum) ;Compare OCR & string manipulation results with wish number
+	{
+	;If true, select second possibility, click it and select it. Then Exit Script. Calculate y-position of middle of possibility 2 first.
+	pos2y:=TextLeftPosY+0.5*OCRheight
+	MouseMove %ButtonX%,%pos2y%
+	Sleep, %Pause1%
+	MouseClick, Left
+	MouseMove %ButtonX%, %ButtonY%
+	Sleep, %Pause1%
+	MouseClick, Left
+	Exit
+	}
 }
 
 
@@ -260,42 +258,42 @@ FileAppend, real compNum %compNum% real wishNum %wishNum%`n , %LogFile%
 
 If clipboard contains %wish% 
 {
-If (compNum>wishNum)
-{
-pos3y:=TextLeftPosY+1.5*OCRheight
-MouseMove %ButtonX%,%pos3y%
-Sleep, %Pause1%
-MouseClick, Left
-MouseMove %ButtonX%, %ButtonY%
-Sleep, %Pause1%
-MouseClick, Left
-Exit
-}
+	If (compNum>wishNum)
+	{
+		pos3y:=TextLeftPosY+1.5*OCRheight
+		MouseMove %ButtonX%,%pos3y%
+		Sleep, %Pause1%
+		MouseClick, Left
+		MouseMove %ButtonX%, %ButtonY%
+		Sleep, %Pause1%
+		MouseClick, Left
+		Exit
+	}
 }
 
 If clipboard contains %wish% 
 {
-If (compNum<=wishNum)
-{
-pos1y:=TextLeftPosY-0.5*OCRheight
-MouseMove %ButtonX%,%pos1y%
-Sleep, %Pause1%
-MouseClick, Left
-MouseMove %ButtonX%, %ButtonY%
-Sleep, %Pause1%
-MouseClick, Left
-}
+	If (compNum<=wishNum)
+	{
+		pos1y:=TextLeftPosY-0.5*OCRheight
+		MouseMove %ButtonX%,%pos1y%
+		Sleep, %Pause1%
+		MouseClick, Left
+		MouseMove %ButtonX%, %ButtonY%
+		Sleep, %Pause1%
+		MouseClick, Left
+	}
 }
 
 If clipboard not contains %wish% 
 {
-pos1y:=TextLeftPosY-0.5*OCRheight
-MouseMove %ButtonX%,%pos1y%
-Sleep, %Pause1%
-MouseClick, Left
-MouseMove %ButtonX%, %ButtonY%
-Sleep, %Pause1%
-MouseClick, Left
+	pos1y:=TextLeftPosY-0.5*OCRheight
+	MouseMove %ButtonX%,%pos1y%
+	Sleep, %Pause1%
+	MouseClick, Left
+	MouseMove %ButtonX%, %ButtonY%
+	Sleep, %Pause1%
+	MouseClick, Left
 }
 
 FileAppend, `nEnd Loop`n, %LogFile%
