@@ -221,85 +221,82 @@ Loop %tries%
 	If clipboard contains %wish% ;only if the wish is in the clipboard...
 	{
 		If (compNum>wishNum) ;Compare OCR & string manipulation results with wish number
-	{
-	;If true, select second possibility, click it and select it. Then Exit Script. Calculate y-position of middle of possibility 2 first.
-	pos2y:=TextLeftPosY+0.5*OCRheight
-	MouseMove %ButtonX%,%pos2y%
-	Sleep, %Pause1%
-	MouseClick, Left
-	MouseMove %ButtonX%, %ButtonY%
-	Sleep, %Pause1%
-	MouseClick, Left
-	Exit
-	}
-}
+	  {
+	    ;If true, select second possibility, click it and select it. Then Exit Script. Calculate y-position of middle of possibility 2 first.
+	    pos2y:=TextLeftPosY+0.5*OCRheight
+	    MouseMove %ButtonX%,%pos2y%
+	    Sleep, %Pause1%
+	    MouseClick, Left
+	    MouseMove %ButtonX%, %ButtonY%
+	    Sleep, %Pause1%
+	    MouseClick, Left
+	    Exit
+	  }
+  }
 
-
-;OCR the third possibility. Mathematical operations not possible with capture2text... So at first some calculations...
-TextLeftPosX2:=TextLeftPosY+OCRheight
-TextRightPosX:=TextLeftPosX+OCRwidth
-TextRightPosY:=TextLeftPosY+2*OCRheight
-
-
-Run, e:\d3\capture2text.exe %TextLeftPosX% %TextLeftPosX2% %TextRightPosX% %TextRightPosY%
-Sleep, %OCRPause%
-FileAppend, `n3rdnd`n, %LogFile%
-FileAppend, `nClipboard %clipboard%`n, %LogFile%
-;StringLeft, strLeft, clipboard, %trimNumL%
-;FileAppend, Left String %strLeft%`n, %LogFile%
-;StringRight, strRight, strLeft, %trimNumR%
-;FileAppend, Right String %strRight%`n, %LogFile%
-
-FoundPos := RegExMatch(Clipboard , "[\d]+(\.\d)?", compNum)
-;MsgBox , %FoundPos%
-;MsgBox , %compNum%
-
-FileAppend, real compNum %compNum% real wishNum %wishNum%`n , %LogFile%
-
-If clipboard contains %wish% 
-{
-	If (compNum>wishNum)
-	{
-		pos3y:=TextLeftPosY+1.5*OCRheight
-		MouseMove %ButtonX%,%pos3y%
-		Sleep, %Pause1%
-		MouseClick, Left
-		MouseMove %ButtonX%, %ButtonY%
-		Sleep, %Pause1%
-		MouseClick, Left
-		Exit
-	}
-}
-
-If clipboard contains %wish% 
-{
-	If (compNum<=wishNum)
-	{
-		pos1y:=TextLeftPosY-0.5*OCRheight
-		MouseMove %ButtonX%,%pos1y%
-		Sleep, %Pause1%
-		MouseClick, Left
-		MouseMove %ButtonX%, %ButtonY%
-		Sleep, %Pause1%
-		MouseClick, Left
-	}
-}
-
-If clipboard not contains %wish% 
-{
-	pos1y:=TextLeftPosY-0.5*OCRheight
-	MouseMove %ButtonX%,%pos1y%
-	Sleep, %Pause1%
-	MouseClick, Left
-	MouseMove %ButtonX%, %ButtonY%
-	Sleep, %Pause1%
-	MouseClick, Left
-}
-
-FileAppend, `nEnd Loop`n, %LogFile%
-Sleep, %Pause1%
-
-
+  ;OCR the third possibility. Mathematical operations not possible with capture2text... So at first some calculations...
+  TextLeftPosX2:=TextLeftPosY+OCRheight
+  TextRightPosX:=TextLeftPosX+OCRwidth
+  TextRightPosY:=TextLeftPosY+2*OCRheight
+  
+  Run, e:\d3\capture2text.exe %TextLeftPosX% %TextLeftPosX2% %TextRightPosX% %TextRightPosY%
+  Sleep, %OCRPause%
+  FileAppend, `n3rdnd`n, %LogFile%
+  FileAppend, `nClipboard %clipboard%`n, %LogFile%
+  ;StringLeft, strLeft, clipboard, %trimNumL%
+  ;FileAppend, Left String %strLeft%`n, %LogFile%
+  ;StringRight, strRight, strLeft, %trimNumR%
+  ;FileAppend, Right String %strRight%`n, %LogFile%
+  
+  FoundPos := RegExMatch(Clipboard , "[\d]+(\.\d)?", compNum)
+  ;MsgBox , %FoundPos%
+  ;MsgBox , %compNum%
+  
+  FileAppend, real compNum %compNum% real wishNum %wishNum%`n , %LogFile%
+  
+  If clipboard contains %wish% 
+  {
+  	If (compNum>wishNum)
+  	{
+  		pos3y:=TextLeftPosY+1.5*OCRheight
+  		MouseMove %ButtonX%,%pos3y%
+  		Sleep, %Pause1%
+  		MouseClick, Left
+  		MouseMove %ButtonX%, %ButtonY%
+  		Sleep, %Pause1%
+  		MouseClick, Left
+  		Exit
+  	}
+  }
+  
+  If clipboard contains %wish% 
+  {
+  	If (compNum<=wishNum)
+  	{
+  		pos1y:=TextLeftPosY-0.5*OCRheight
+  		MouseMove %ButtonX%,%pos1y%
+  		Sleep, %Pause1%
+  		MouseClick, Left
+  		MouseMove %ButtonX%, %ButtonY%
+  		Sleep, %Pause1%
+  		MouseClick, Left
+  	}
+  }
+  
+  If clipboard not contains %wish% 
+  {
+  	pos1y:=TextLeftPosY-0.5*OCRheight
+  	MouseMove %ButtonX%,%pos1y%
+  	Sleep, %Pause1%
+  	MouseClick, Left
+  	MouseMove %ButtonX%, %ButtonY%
+  	Sleep, %Pause1%
+  	MouseClick, Left
+  }
+ 
+  FileAppend, `nEnd Loop`n, %LogFile%
+  Sleep, %Pause1%
+  
 }
 
 EarlyTerm:     ;;;STEP TO END THE HOTKEY FROM RUNNING
