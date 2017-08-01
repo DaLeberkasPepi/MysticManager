@@ -1,305 +1,209 @@
-;Basically it OCRs the 2 possibilities and analyzes the strings based on the trim-numbers.
+#NoEnv
+SendMode Input
+SetWorkingDir %A_ScriptDir%
+#IfWinActive, Diablo III
+CoordMode, Mouse, Client
+global D3ScreenResolution
+,ScreenMode
+,DiabloX
+,DiabloY
+
+LogFile = %A_ScriptDir%\logs.txt
+
 Hotkey, Pause, EarlyTerm ;Exit with Pause Key
-CoordMode, Mouse, Screen
-;Logfile
-LogFile= e:\d3\attributes.txt
 
-;Gui Section
-Gui, New, ,OCR Enchantress
-Gui, Add, Text,x20 y10, Choose Resolution!
-Gui, Add, Text, x250 y10, Own Measurements!
-Gui, Add, DDL, x20 y30 w150 vDDL, 2560x1440|1920x1080|1680x1050||1280x720|Custom
-Gui, Add, Button, x150 y300 w120 h30, Start
-Gui, Add, Text, x250 y30, Enter Values!
-Gui, Add, Text, x250 y50, TextLeftPosX
-Gui, Add, Edit, x350 y45 vTextLeftPosX
-Gui, Add, Text, x250 y80, TextLeftPosY
-Gui, Add, Edit, x350 y75 vTextLeftPosY
-Gui, Add, Text, x250 y110, OCRwidth
-Gui, Add, Edit, x350 y105 vOCRwidth
-Gui, Add, Text, x250 y140, OCRheight
-Gui, Add, Edit, x350 y135 vOCRheight
-Gui, Add, Text, x250 y170, ButtonX
-Gui, Add, Edit, x350 y165 vButtonX
-Gui, Add, Text, x250 y200, ButtonY
-Gui, Add, Edit, x350 y195 vButtonY
-Gui, Add, Text, x20 y70, Choose Attribute and value
-Gui, Add, DDL,x20 y90 w150 vAttribute, Area Damage|Cooldown||Thorns|CHD||CHC|Custom
-Gui, Add, Edit, x180 y90 w40 vwishNum
-
-;Custom values attributes
-Gui, Add, Text, x20 y120, Enter custom values for attribute
-Gui, Add, Text, x20 y150, Left Trim
-Gui, Add, Edit, x90 y145 w40 vtrimNumL
-Gui, Add, Text, x20 y180, Right Trim
-Gui, Add, Edit, x90 y175 w40 vtrimNumR
-Gui, Add, Text, x20 y210, OCR word
-Gui, Add, Edit, x90 y205 w40 vwish
+;GUI Section
+GUI, New, ,OCR Enchantress
+GUI, Add, Text, x20 y10, Choose Attribute and value
+GUI, Add, DDL,x20 y30 w80 vAttribute, CHC|CHD|AD|DMG|CDR|RCR|CHC|IAS|ASI
+GUI, Add, Edit, x110 y30 w40 vwishNum
+GUI, Add, Button, x20 y80 w130 h30, Start
 
 ;Tries
-Gui, Add, Text, x20 y250, Tries?
-Gui, Add, Edit, x60 y245 w40 vtries, 5
+GUI, Add, Text, x20 y60, Number of Tries:
+GUI, Add, Edit, x110 y55 w40 vtries, 50
 
-Gui, Show
+GUI, Show
 return
 
 ButtonStart:
-	GuiControlGet, DDL
-	if (DDL = "2560x1440")
-	{
-		resX=2560
-	}
-		
-	if (DDL = "1920x1080")
-	{
-		resX=1920
-	}
-	
-	if (DDL = "1680x1050")
-	{
-		resX=1680
-	}	
-	if (DDL = "1280x720")
-	{
-		resX=1280
-	}
-	
-	if (DDL = "Custom")
-	{	
-		GuiControlGet, OCRheight
-		GuiControlGet, OCRwidth
-		GuiControlGet, TextLeftPosX
-		GuiControlGet, TextLeftPosY
-		GuiControlGet, ButtonX
-		GuiControlGet, ButtonY
-		resX= 12345
-	}
+GUIControlGet, Attribute
 
-GuiControlGet, Attribute
-if (Attribute = "Area Damage")
-{
-	trimNumL=17
-	trimNumR=2
-	wish=Area Damage
-}
+If (Attribute == "CHC")
+	wish := "Critical Hit Chance Increased by \d{1,2}+\.\d{1}%"
 
-if (Attribute = "Cooldown")
-{
-	trimNumL=36
-	trimNumR=2
-	wish=cooldown
-}
+If (Attribute == "CHD")
+	wish := "Critical Hit Damage Increased by \d{2}+\.\d{1}%"
 
-if (Attribute = "Thorns")
-{
-	trimNumL=5
-	trimNumR=4
-	wish=Thorns
-}
+If (Attribute == "AD")
+	wish := "Chance to Deal \d{2}% Area Damage on Hit"
 
-if (Attribute = "CHD")
-{
-	trimNumL=36
-	trimNumR=3
-	wish=Critical Hit Damage
-}
+If (Attribute == "DMG")
+	wish := "\d{1,2}% Damage"
 
-if (Attribute = "CHC")
-{
-	trimNumL=36
-	trimNumR=3
-	wish=Critical Hit Chance
-}
+If (Attribute == "CDR")
+	wish := "Reduces cooldown of all skills by \d{1}+\.\d{1}%"
 
-if (Attribute = "Custom")
-{
-	GuiControlGet, trimNumL
-	GuiControlGet, trimNumR
-	GuiControlGet, wish
-}
+If (Attribute == "RCR")
+	wish := "Reduces all resource costs by \d{1}%"
 
-GuiControlGet, tries
-If (tries = "")
-{
-	tries = 1
-}
+If (Attribute == "IAS")
+	wish := "Increases Attack Speed by \d{1}%"
 
-GuiControlGet, wishNum
-If (wishNum = "")
-{
+If (Attribute == "ASI")
+	wish := "Attack Speed Increased by \d{1}+\.\d{1}%"
+
+GUIControlGet, tries
+If (tries == "")
 	Exit
-}
-	
-If resX=2560
-{
-	;x & y position of second possibility 
-	TextLeftPosX=100 
-	TextLeftPosY=554
-	;width and height of OCR rectangle
-	OCRwidth=530
-	OCRheight=58
-	;middle of button
-	ButtonX=333
-	ButtonY=1040
-}
 
-If resX=1920 
-{
-	;x & y position of second possibility 
-	TextLeftPosX=78 
-	TextLeftPosY=418
-	;width and height of OCR rectangle
-	OCRwidth=400
-	OCRheight=44
-	;middle of button
-	ButtonX=262
-	ButtonY=781
-}
+GUIControlGet, wishNum
+If (wishNum == "")
+	Exit
 
-If resX=1680 
+WinGetPos, DiabloX, DiabloY, DiabloWidth, DiabloHeight, Diablo III
+If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 {
-	;x & y position of second possibility 
-	TextLeftPosX=75 
-	TextLeftPosY=410	
-	;width and height of OCR rectangle
-	OCRwidth=380
-	OCRheight=34
-	;middle of button
-	ButtonX=247
-	ButtonY=763
-}
+	global StepWindowTopLeft := [58, 463, 2]
+	,StepWindowSize := [580, 36, 4]
+	;width and height of OCR rectangle based of 2560x1440
+	,Stat1TopLeft := [106, 514, 2]
+	,Stat2TopLeft := [106, 572, 2]
+	,Stat3TopLeft := [106, 629, 2]
+	,StatSize := [518, 28, 4]
+	;middle of button based of 2560x1440
+	,SelectProperty := [350, 1045, 2]
+	,StartStatus := "Replace a Previously Enchanted Property"
+	,SelecStatus := "Select Replacement Property"
 
-If resX=1280 
-{
-	;x & y position of second possibility 
-	TextLeftPosX=53 
-	TextLeftPosY=278
-	;width and height of OCR rectangle
-	OCRwidth=264
-	OCRheight=29
-	;middle of button
-	ButtonX=170
-	ButtonY=519
+	;convert coordinates for the used resolution of Diablo III
+	ScreenMode := isWindowFullScreen("Diablo III")
+	ConvertCoordinates(StepWindowTopLeft)
+	ConvertCoordinates(StepWindowSize)
+	ConvertCoordinates(Stat1TopLeft)
+	ConvertCoordinates(Stat2TopLeft)
+	ConvertCoordinates(Stat2TopLeft)
+	ConvertCoordinates(StatSize)
+	ConvertCoordinates(SelectProperty)
 }
-
-;Just some other variables 
-Pause1=200
-EnchantmentPause=1500
-OCRPause=1200
 
 ;Start of the script. You have to be at the enchantress and the item has to be at least once enchanted (else you would have to enter the attribute you wanted to change which would be a waste of time)
 
-Loop %tries% 
+Loop %tries%
 {
-	FileAppend, `nStart`n, %LogFile%
-	FileAppend, `nwish: %wish%`n, %LogFile%
-	
-	MouseMove, %ButtonX%, %ButtonY% ;Move to the Replace property button.
-	Sleep, %Pause1% ;wait a little (you have to wait to not lose some clicks)
-	MouseClick, Left ;Click
-	Sleep, %EnchantmentPause% ;and wait for the enchantments to come up.
-	
-	;OCR the second possibility. Mathematical operations not possible with capture2text... So at first some calculations...
-	TextRightPosX:=TextLeftPosX + OCRwidth
-	TextRightPosY:=TextLeftPosY + OCRheight
-	
-	Run, e:\d3\capture2text.exe %TextLeftPosX% %TextLeftPosY% %TextRightPosX% %TextRightPosY%
-	Sleep, %OCRPause%
-	
-	FileAppend, `n2nd`n, %LogFile%
-	FileAppend, `nClipboard %clipboard%`n, %LogFile%
-	;StringLeft, strLeft, clipboard, %trimNumL%
-	;FileAppend, Left String %strLeft%`n, %LogFile%
-	;StringRight, strRight, strLeft, %trimNumR%
-	;FileAppend, Right String %strRight%`n, %LogFile%
-	
-	FoundPos := RegExMatch(Clipboard , "[\d]+(\.\d)?", compNum)
-	;MsgBox , %FoundPos%
-	;MsgBox , %compNum%
-	
-	;Check the results
-	If clipboard contains %wish% ;only if the wish is in the clipboard...
-	{
-		If (compNum>wishNum) ;Compare OCR & string manipulation results with wish number
-	  {
-	    ;If true, select second possibility, click it and select it. Then Exit Script. Calculate y-position of middle of possibility 2 first.
-	    pos2y:=TextLeftPosY+0.5*OCRheight
-	    MouseMove %ButtonX%,%pos2y%
-	    Sleep, %Pause1%
-	    MouseClick, Left
-	    MouseMove %ButtonX%, %ButtonY%
-	    Sleep, %Pause1%
-	    MouseClick, Left
-	    Exit
-	  }
-  }
+	If (ScreenMode == false)
+ 	{
+		WindowBorderX := 8
+		WindowBorderY := 31
 
-  ;OCR the third possibility. Mathematical operations not possible with capture2text... So at first some calculations...
-  TextLeftPosX2:=TextLeftPosY+OCRheight
-  TextRightPosX:=TextLeftPosX+OCRwidth
-  TextRightPosY:=TextLeftPosY+2*OCRheight
-  
-  Run, e:\d3\capture2text.exe %TextLeftPosX% %TextLeftPosX2% %TextRightPosX% %TextRightPosY%
-  Sleep, %OCRPause%
-  FileAppend, `n3rdnd`n, %LogFile%
-  FileAppend, `nClipboard %clipboard%`n, %LogFile%
-  ;StringLeft, strLeft, clipboard, %trimNumL%
-  ;FileAppend, Left String %strLeft%`n, %LogFile%
-  ;StringRight, strRight, strLeft, %trimNumR%
-  ;FileAppend, Right String %strRight%`n, %LogFile%
-  
-  FoundPos := RegExMatch(Clipboard , "[\d]+(\.\d)?", compNum)
-  ;MsgBox , %FoundPos%
-  ;MsgBox , %compNum%
-  
-  FileAppend, real compNum %compNum% real wishNum %wishNum%`n , %LogFile%
-  
-  If clipboard contains %wish% 
-  {
-  	If (compNum>wishNum)
-  	{
-  		pos3y:=TextLeftPosY+1.5*OCRheight
-  		MouseMove %ButtonX%,%pos3y%
-  		Sleep, %Pause1%
-  		MouseClick, Left
-  		MouseMove %ButtonX%, %ButtonY%
-  		Sleep, %Pause1%
-  		MouseClick, Left
-  		Exit
-  	}
-  }
-  
-  If clipboard contains %wish% 
-  {
-  	If (compNum<=wishNum)
-  	{
-  		pos1y:=TextLeftPosY-0.5*OCRheight
-  		MouseMove %ButtonX%,%pos1y%
-  		Sleep, %Pause1%
-  		MouseClick, Left
-  		MouseMove %ButtonX%, %ButtonY%
-  		Sleep, %Pause1%
-  		MouseClick, Left
-  	}
-  }
-  
-  If clipboard not contains %wish% 
-  {
-  	pos1y:=TextLeftPosY-0.5*OCRheight
-  	MouseMove %ButtonX%,%pos1y%
-  	Sleep, %Pause1%
-  	MouseClick, Left
-  	MouseMove %ButtonX%, %ButtonY%
-  	Sleep, %Pause1%
-  	MouseClick, Left
-  }
- 
-  FileAppend, `nEnd Loop`n, %LogFile%
-  Sleep, %Pause1%
-  
+		StepWindowTopLeft[1] := StepWindowTopLeft[1] + DiabloX + WindowBorderX
+		StepWindowTopLeft[2] := StepWindowTopLeft[2] + DiabloY + WindowBorderY
+
+		Stat1TopLeft[1] := Stat1TopLeft[1] + DiabloX + WindowBorderX
+		Stat1TopLeft[2] := Stat1TopLeft[2] + DiabloY + WindowBorderY
+
+		Stat2TopLeft[1] := Stat2TopLeft[1] + DiabloX + WindowBorderX
+		Stat2TopLeft[2] := Stat2TopLeft[2] + DiabloY + WindowBorderY
+
+		Stat3TopLeft[1] := Stat3TopLeft[1] + DiabloX + WindowBorderX
+		Stat3TopLeft[2] := Stat3TopLeft[2] + DiabloY + WindowBorderY
+	}
+	;check if one stat was already rerolled on the item else this script wont do anything
+	OCROuput := OCR(StepWindowTopLeft[1], StepWindowTopLeft[2], StepWindowTopLeft[1]+StepWindowSize[1], StepWindowTopLeft[2]+StepWindowSize[2])
+	X := StepWindowTopLeft[1]
+	Y := StepWindowTopLeft[2]
+	FileAppend, `n%X% %Y% %OCROuput%`n, %LogFile%
+	If (OCROuput == StartStatus)
+	{
+		WinActivate, Diablo III
+		MouseClick, Left, SelectProperty[1], SelectProperty[2]
+		;simple while loop to wait till enchanting is finished.
+		While (OCROuput != SelecStatus)
+		{
+			OCROuput := OCR(StepWindowTopLeft[1], StepWindowTopLeft[2], StepWindowTopLeft[1]+StepWindowSize[1], StepWindowTopLeft[2]+StepWindowSize[2])
+			X := StepWindowTopLeft[1]
+			Y := StepWindowTopLeft[2]
+			FileAppend, `n%X% %Y% %OCROuput%`n, %LogFile%
+		}
+
+		Loop 3
+		{
+			OCROuput := OCR(Stat%A_Index%TopLeft[1], Stat%A_Index%TopLeft[2], Stat%A_Index%TopLeft[1]+StatSize[1], Stat%A_Index%TopLeft[2]+StatSize[2])
+			X := Stat%A_Index%TopLeft[1]
+			Y := Stat%A_Index%TopLeft[2]
+			FileAppend, `n%X% %Y% %OCROuput%`n, %LogFile%
+			If (RegExMatch(OCROuput, "im)" wish))
+			{
+				WinActivate, Diablo III
+				MouseClick, Left, Stat%A_Index%TopLeft[1]+StatSize[1]/2, Stat%A_Index%TopLeft[2]+StatSize[2]/2
+				Sleep, 50
+				WinActivate, Diablo III
+				MouseClick, Left, SelectProperty[1], SelectProperty[2]
+				Sleep, 100
+			}
+		}
+	}
+
 }
+Return
 
 EarlyTerm:     ;;;STEP TO END THE HOTKEY FROM RUNNING
-FileAppend, `nDone`n, %LogFile%
-
 ExitApp         ;;;ENDS HOTKEY APPLICATION FROM RUNNING, ITS REMOVED FROM TOOL TRAY
+Return ; just in case
+
+OCR(X1, Y1, X2, Y2)
+{
+	FileAppend, `nOCR Coordinaten %X1% %Y1% %X2% %Y2%`n, %LogFile%
+	clipboard :=
+	Run, %A_ScriptDir%\Capture2Text\Capture2Text_CLI.exe --screen-rect "%X1% %Y1% %X2% %Y2%" --clipboard, , Hide
+	ClipWait
+	Sleep, 100
+
+	Return clipboard
+}
+
+ConvertCoordinates(ByRef Array)
+{
+	WinGetPos, , , DiabloWidth, DiabloHeight, Diablo III
+	D3ScreenResolution := DiabloWidth*DiabloHeight
+
+	NativeDiabloHeight := 1440
+	NativeDiabloWidth := 2560
+
+ 	If (ScreenMode == false)
+ 	{
+		DiabloWidth := DiabloWidth-16
+		DiabloHeight := DiabloHeight-39
+	}
+
+	Position := Array[3]
+
+	;Pixel is always relative to the middle of the Diablo III window
+  If (Position == 1)
+  	Array[1] := Round(Array[1]*DiabloHeight/NativeDiabloHeight+(DiabloWidth-NativeDiabloWidth*DiabloHeight/NativeDiabloHeight)/2, 0)
+
+  ;Pixel is always relative to the left side of the Diablo III window or just relative to the Diablo III windowheight
+  If Else (Position == 2 || Position == 4)
+		Array[1] := Round(Array[1]*(DiabloHeight/NativeDiabloHeight), 0)
+
+	;Pixel is always relative to the right side of the Diablo III window
+	If Else (Position == 3)
+		Array[1] := Round(DiabloWidth-(NativeDiabloWidth-Array[1])*DiabloHeight/NativeDiabloHeight, 0)
+
+	Array[2] := Round(Array[2]*(DiabloHeight/NativeDiabloHeight), 0)
+}
+
+isWindowFullScreen(WinID)
+{
+   ;checks If the specIfied window is full screen
+	winID := WinExist("Diablo III")
+	If ( !winID )
+		Return false
+
+	WinGet style, Style, ahk_id %WinID%
+	WinGetPos ,,,winW,winH, %winTitle%
+	; 0x800000 is WS_BORDER.
+	; 0x20000000 is WS_MINIMIZE.
+	; no border and not minimized
+	Return ((style & 0x20800000) or winH < A_ScreenHeight or winW < A_ScreenWidth) ? false : true
+}
