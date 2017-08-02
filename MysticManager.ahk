@@ -2,15 +2,15 @@
 SendMode Input
 SetWorkingDir %A_ScriptDir%
 #IfWinActive, Diablo III
+#SingleInstance force
 CoordMode, Mouse, Client
 global D3ScreenResolution
 ,ScreenMode
 ,DiabloX
 ,DiabloY
+,Status := ""
 
-LogFile = %A_ScriptDir%\logs.txt
-
-Hotkey, Pause, EarlyTerm ;Exit with Pause Key
+;Hotkey, Pause, EarlyTerm ;Exit with Pause Key
 
 ;GUI Section
 GUI, New, ,OCR Enchantress
@@ -27,6 +27,8 @@ GUI, Show
 return
 
 ButtonStart:
+GUI, Hide
+WinActivate, Diablo III
 GUIControlGet, Attribute
 
 If (Attribute == "CHC")
@@ -42,13 +44,13 @@ If (Attribute == "DMG")
 	wish := "\d{1,2}% Damage"
 
 If (Attribute == "CDR")
-	wish := "Reduces cooldown of all skills by \d{1}+\.\d{1}%"
+	wish := "Reduces cooldown of all skills by \d{1,2}+\.\d{1}%"
 
 If (Attribute == "RCR")
-	wish := "Reduces all resource costs by \d{1}%"
+	wish := "Reduces all resource costs by \d{1,2}+\.\d{1}%"
 
 If (Attribute == "IAS")
-	wish := "Increases Attack Speed by \d{1}%"
+	wish := "Increases Attack Speed by \d{1,2}+\.\d{1}%"
 
 If (Attribute == "ASI")
 	wish := "Attack Speed Increased by \d{1}+\.\d{1}%"
@@ -73,8 +75,6 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 	,StatSize := [518, 28, 4]
 	;middle of button based of 2560x1440
 	,SelectProperty := [350, 1045, 2]
-	,StartStatus := "Replace a Previously Enchanted Property"
-	,SelecStatus := "Select Replacement Property"
 
 	;convert coordinates for the used resolution of Diablo III
 	ScreenMode := isWindowFullScreen("Diablo III")
@@ -99,64 +99,54 @@ Loop %tries%
 		StepWindowTopLeft[1] := StepWindowTopLeft[1] + DiabloX + WindowBorderX
 		StepWindowTopLeft[2] := StepWindowTopLeft[2] + DiabloY + WindowBorderY
 
-		Stat1TopLeft[1] := Stat1TopLeft[1] + DiabloX + WindowBorderX
-		Stat1TopLeft[2] := Stat1TopLeft[2] + DiabloY + WindowBorderY
-
-		Stat2TopLeft[1] := Stat2TopLeft[1] + DiabloX + WindowBorderX
-		Stat2TopLeft[2] := Stat2TopLeft[2] + DiabloY + WindowBorderY
-
-		Stat3TopLeft[1] := Stat3TopLeft[1] + DiabloX + WindowBorderX
-		Stat3TopLeft[2] := Stat3TopLeft[2] + DiabloY + WindowBorderY
+		Loop, 3
+		{
+			Stat%A_Index%TopLeft[1] := Stat%A_Index%TopLeft[1] + DiabloX + WindowBorderX
+			Stat%A_Index%TopLeft[2] := Stat%A_Index%TopLeft[2] + DiabloY + WindowBorderY
+		}
 	}
 	;check if one stat was already rerolled on the item else this script wont do anything
 	OCROuput := OCR(StepWindowTopLeft[1], StepWindowTopLeft[2], StepWindowTopLeft[1]+StepWindowSize[1], StepWindowTopLeft[2]+StepWindowSize[2])
-	X := StepWindowTopLeft[1]
-	Y := StepWindowTopLeft[2]
-	FileAppend, `n%X% %Y% %OCROuput%`n, %LogFile%
-	If (OCROuput == StartStatus)
+	If (RegExMatch(OCROuput, "Replace a Previously Enchanted Property"))
 	{
-		WinActivate, Diablo III
+ 		WinActivate, Diablo III
 		MouseClick, Left, SelectProperty[1], SelectProperty[2]
 		;simple while loop to wait till enchanting is finished.
-		While (OCROuput != SelecStatus)
-		{
+		While (RegExMatch(OCROuput, "Select Replacement Property") == 0)
 			OCROuput := OCR(StepWindowTopLeft[1], StepWindowTopLeft[2], StepWindowTopLeft[1]+StepWindowSize[1], StepWindowTopLeft[2]+StepWindowSize[2])
-			X := StepWindowTopLeft[1]
-			Y := StepWindowTopLeft[2]
-			FileAppend, `n%X% %Y% %OCROuput%`n, %LogFile%
-		}
 
 		Loop 3
 		{
 			OCROuput := OCR(Stat%A_Index%TopLeft[1], Stat%A_Index%TopLeft[2], Stat%A_Index%TopLeft[1]+StatSize[1], Stat%A_Index%TopLeft[2]+StatSize[2])
-			X := Stat%A_Index%TopLeft[1]
-			Y := Stat%A_Index%TopLeft[2]
-			FileAppend, `n%X% %Y% %OCROuput%`n, %LogFile%
 			If (RegExMatch(OCROuput, "im)" wish))
 			{
-				WinActivate, Diablo III
+				Status := A_Index
 				MouseClick, Left, Stat%A_Index%TopLeft[1]+StatSize[1]/2, Stat%A_Index%TopLeft[2]+StatSize[2]/2
 				Sleep, 50
-				WinActivate, Diablo III
-				MouseClick, Left, SelectProperty[1], SelectProperty[2]
-				Sleep, 100
 			}
 		}
+		If (Status == "")
+		{
+			MouseClick, Left, Stat1TopLeft[1]+StatSize[1]/2, Stat1TopLeft[2]+StatSize[2]/2
+			Sleep, 50
+		}
+		Status := ""
+		MouseClick, Left, SelectProperty[1], SelectProperty[2]
+		Sleep, 100
 	}
 
 }
 Return
 
-EarlyTerm:     ;;;STEP TO END THE HOTKEY FROM RUNNING
-ExitApp         ;;;ENDS HOTKEY APPLICATION FROM RUNNING, ITS REMOVED FROM TOOL TRAY
-Return ; just in case
+;EarlyTerm:     ;;;STEP TO END THE HOTKEY FROM RUNNING
+;ExitApp         ;;;ENDS HOTKEY APPLICATION FROM RUNNING, ITS REMOVED FROM TOOL TRAY
+;Return ; just in case
 
 OCR(X1, Y1, X2, Y2)
 {
-	FileAppend, `nOCR Coordinaten %X1% %Y1% %X2% %Y2%`n, %LogFile%
 	clipboard :=
 	Run, %A_ScriptDir%\Capture2Text\Capture2Text_CLI.exe --screen-rect "%X1% %Y1% %X2% %Y2%" --clipboard, , Hide
-	ClipWait
+	ClipWait, 3
 	Sleep, 100
 
 	Return clipboard
