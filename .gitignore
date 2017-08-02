@@ -1,4 +1,5 @@
 #Script dependent ignores
+logs.txt
 *.png
 *.bmp
 *.mp3
