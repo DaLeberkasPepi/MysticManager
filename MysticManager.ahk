@@ -16,12 +16,12 @@ global D3ScreenResolution
 GUI, New, ,OCR Enchantress
 GUI, Add, Text, x20 y10, Choose Attribute and value
 GUI, Add, DDL,x20 y30 w80 vAttribute, CHC|CHD|AD|DMG|CDR|RCR|CHC|IAS|ASI
-GUI, Add, Edit, x110 y30 w40 vwishNum
+GUI, Add, Edit, x110 y30 w40 vStatRoll
 GUI, Add, Button, x20 y80 w130 h30, Start
 
 ;Tries
 GUI, Add, Text, x20 y60, Number of Tries:
-GUI, Add, Edit, x110 y55 w40 vtries, 50
+GUI, Add, Edit, x110 y55 w40 vTries, 50
 
 GUI, Show
 return
@@ -55,12 +55,12 @@ If (Attribute == "IAS")
 If (Attribute == "ASI")
 	wish := "Attack Speed Increased by \d{1}+\.\d{1}%"
 
-GUIControlGet, tries
-If (tries == "")
+GUIControlGet, Tries
+If (Tries == "")
 	Exit
 
-GUIControlGet, wishNum
-If (wishNum == "")
+GUIControlGet, StatRoll
+If (StatRoll == "")
 	Exit
 
 WinGetPos, DiabloX, DiabloY, DiabloWidth, DiabloHeight, Diablo III
@@ -89,7 +89,7 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 
 ;Start of the script. You have to be at the enchantress and the item has to be at least once enchanted (else you would have to enter the attribute you wanted to change which would be a waste of time)
 
-Loop %tries%
+Loop %Tries%
 {
 	If (ScreenMode == false)
  	{
