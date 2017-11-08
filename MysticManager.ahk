@@ -25,7 +25,7 @@ global D3ScreenResolution
 ;GUI Section
 GUI, New, ,OCR Enchantress
 GUI, Add, Text, x20 y10, Choose Attribute and value
-GUI, Add, DDL,x20 y30 w120 vAttribute, Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|Damage|Cooldown|Resource|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|Life|Physical|Cold|Fire|Lightning|Poison|Arcane
+GUI, Add, DDL,x20 y30 w120 vAttribute, Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|Damage|Cooldown|Resource|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
 GUI, Add, Button, x20 y80 w170 h30, Start
 GUI, Add, Edit, x150 y30 w40 vStatRoll
 
