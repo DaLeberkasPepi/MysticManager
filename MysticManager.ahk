@@ -3,57 +3,47 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 #IfWinActive, Diablo III
 #SingleInstance force
-CoordMode, Mouse, Client
+CoordMode, Pixel, Screen
+CoordMode, Mouse, Screen
+
 global D3ScreenResolution
 ,ScreenMode
 ,DiabloX
 ,DiabloY
-,Status := ""
+,SelectField := 0
+,Compare1
+,Compare2
+,AIndexSave
+,Stat1Roll
+,Stat2Roll
+,Stat3Roll
+,SleepSelect := 1650
+,SleepClick := 100
 
 ;Hotkey, Pause, EarlyTerm ;Exit with Pause Key
 
 ;GUI Section
 GUI, New, ,OCR Enchantress
 GUI, Add, Text, x20 y10, Choose Attribute and value
-GUI, Add, DDL,x20 y30 w80 vAttribute, CHC|CHD|AD|DMG|CDR|RCR|CHC|IAS|ASI
-GUI, Add, Edit, x110 y30 w40 vStatRoll
-GUI, Add, Button, x20 y80 w130 h30, Start
+GUI, Add, DDL,x20 y30 w120 vAttribute, Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|Damage|Cooldown|Resource|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|Life|Physical|Cold|Fire|Lightning|Poison|Arcane
+GUI, Add, Button, x20 y80 w170 h30, Start
+GUI, Add, Edit, x150 y30 w40 vStatRoll
 
 ;Tries
 GUI, Add, Text, x20 y60, Number of Tries:
-GUI, Add, Edit, x110 y55 w40 vTries, 50
+GUI, Add, Edit, x150 y55 w40 vTries, 50
 
 GUI, Show
 return
+
+ESC::
+GuiClose:
+ExitApp
 
 ButtonStart:
 GUI, Hide
 WinActivate, Diablo III
 GUIControlGet, Attribute
-
-If (Attribute == "CHC")
-	wish := "Critical Hit Chance Increased by \d{1,2}+\.\d{1}%"
-
-If (Attribute == "CHD")
-	wish := "Critical Hit Damage Increased by \d{2}+\.\d{1}%"
-
-If (Attribute == "AD")
-	wish := "Chance to Deal \d{2}% Area Damage on Hit"
-
-If (Attribute == "DMG")
-	wish := "\d{1,2}% Damage"
-
-If (Attribute == "CDR")
-	wish := "Reduces cooldown of all skills by \d{1,2}+\.\d{1}%"
-
-If (Attribute == "RCR")
-	wish := "Reduces all resource costs by \d{1,2}+\.\d{1}%"
-
-If (Attribute == "IAS")
-	wish := "Increases Attack Speed by \d{1,2}+\.\d{1}%"
-
-If (Attribute == "ASI")
-	wish := "Attack Speed Increased by \d{1}+\.\d{1}%"
 
 GUIControlGet, Tries
 If (Tries == "")
@@ -82,7 +72,7 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 	ConvertCoordinates(StepWindowSize)
 	ConvertCoordinates(Stat1TopLeft)
 	ConvertCoordinates(Stat2TopLeft)
-	ConvertCoordinates(Stat2TopLeft)
+	ConvertCoordinates(Stat3TopLeft)
 	ConvertCoordinates(StatSize)
 	ConvertCoordinates(SelectProperty)
 }
@@ -91,67 +81,95 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 
 Loop %Tries%
 {
-	If (ScreenMode == false)
- 	{
-		WindowBorderX := 8
-		WindowBorderY := 31
-
-		StepWindowTopLeft[1] := StepWindowTopLeft[1] + DiabloX + WindowBorderX
-		StepWindowTopLeft[2] := StepWindowTopLeft[2] + DiabloY + WindowBorderY
-
-		Loop, 3
-		{
-			Stat%A_Index%TopLeft[1] := Stat%A_Index%TopLeft[1] + DiabloX + WindowBorderX
-			Stat%A_Index%TopLeft[2] := Stat%A_Index%TopLeft[2] + DiabloY + WindowBorderY
-		}
+	MouseClick, Left, SelectProperty[1], SelectProperty[2]
+	Sleep, %SleepSelect%
+	GoSub RunReaders
+	GoSub Choose
+	Sleep, %SleepClick%
+	MouseClick, Left, SelectProperty[1], SelectProperty[2]
+	Sleep, %SleepClick%
+	If (SecondRoll >= StatRoll) || (FirstRoll >= StatRoll)
+	{	
+		FirstStat := FirstRoll := SecondStat := SecondRoll := ""
+		Break
 	}
-	;check if one stat was already rerolled on the item else this script wont do anything
-	OCROuput := OCR(StepWindowTopLeft[1], StepWindowTopLeft[2], StepWindowTopLeft[1]+StepWindowSize[1], StepWindowTopLeft[2]+StepWindowSize[2])
-	If (RegExMatch(OCROuput, "Replace a Previously Enchanted Property"))
-	{
- 		WinActivate, Diablo III
-		MouseClick, Left, SelectProperty[1], SelectProperty[2]
-		;simple while loop to wait till enchanting is finished.
-		While (RegExMatch(OCROuput, "Select Replacement Property") == 0)
-			OCROuput := OCR(StepWindowTopLeft[1], StepWindowTopLeft[2], StepWindowTopLeft[1]+StepWindowSize[1], StepWindowTopLeft[2]+StepWindowSize[2])
-
-		Loop 3
-		{
-			OCROuput := OCR(Stat%A_Index%TopLeft[1], Stat%A_Index%TopLeft[2], Stat%A_Index%TopLeft[1]+StatSize[1], Stat%A_Index%TopLeft[2]+StatSize[2])
-			If (RegExMatch(OCROuput, "im)" wish))
-			{
-				Status := A_Index
-				MouseClick, Left, Stat%A_Index%TopLeft[1]+StatSize[1]/2, Stat%A_Index%TopLeft[2]+StatSize[2]/2
-				Sleep, 50
-			}
-		}
-		If (Status == "")
-		{
-			MouseClick, Left, Stat1TopLeft[1]+StatSize[1]/2, Stat1TopLeft[2]+StatSize[2]/2
-			Sleep, 50
-		}
-		Status := ""
-		MouseClick, Left, SelectProperty[1], SelectProperty[2]
-		Sleep, 100
-	}
-
+	
+	FirstStat := FirstRoll := SecondStat := SecondRoll := ""
 }
+GUI, Show
 Return
 
-;EarlyTerm:     ;;;STEP TO END THE HOTKEY FROM RUNNING
-;ExitApp         ;;;ENDS HOTKEY APPLICATION FROM RUNNING, ITS REMOVED FROM TOOL TRAY
-;Return ; just in case
 
-OCR(X1, Y1, X2, Y2)
-{
-	clipboard :=
-	Run, %A_ScriptDir%\Capture2Text\Capture2Text_CLI.exe --screen-rect "%X1% %Y1% %X2% %Y2%" --clipboard, , Hide
-	ClipWait, 3
-	Sleep, 100
+RunReaders:
+	Loop 3
+	{
+		Stat%A_Index%ButtomRight := Object()
+		Stat%A_Index%ButtomRight[1] := Stat%A_Index%TopLeft[1] + StatSize[1]
+		Stat%A_Index%ButtomRight[2] := Stat%A_Index%TopLeft[2] + StatSize[2]
+		StringRun := A_ScriptDir . "\Capture2Text\Capture2Text_CLI.exe --clipboard -o lastread.txt --output-file-append --screen-rect """ . Stat%A_Index%TopLeft[1] . " " . Stat%A_Index%TopLeft[2] . " " . Stat%A_Index%ButtomRight[1] . " " . Stat%A_Index%ButtomRight[2] . """"
+		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
+		Process, WaitClose, %ocrPID%
+		%A_Index%Stat := clipboard
+		%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
+	}
+Return
 
-	Return clipboard
+Choose:
+	Loop 3
+	{
+		IfInString, %A_Index%Stat, %Attribute%
+		{
+			If (FirstRoll == "")		;only if the FirstRoll is still Zero, using the fact that the max possible occurences of the right StatRoll can't be higher than 2
+			{
+				FirstStat := A_Index
+				FirstRoll := %A_Index%Roll
+			}
+			Else
+			{
+				SecondStat := A_Index
+				SecondRoll := %A_Index%Roll
+			}
+		}
+	}
+	If (FirstRoll == "")			;this would mean no Stat met the search pattern, keeping the first stat in this case
+		MouseClick, Left, Stat1TopLeft[1]+StatSize[1]/2, Stat1TopLeft[2]+StatSize[2]/2
+	
+	If (SecondRoll == "") || (FirstRoll >= SecondRoll)		;this would mean only 1 Stat met the search pattern or the first roll was at least the same roll as the second roll, therefore choosing the first roll
+		MouseClick, Left, Stat%FirstStat%TopLeft[1]+StatSize[1]/2, Stat%FirstStat%TopLeft[2]+StatSize[2]/2
+
+	If (SecondRoll > FirstRoll)	;this would mean the second roll was higher than the first one, therefore choosing that one
+		MouseClick, Left, Stat%SecondStat%TopLeft[1]+StatSize[1]/2, Stat%SecondStat%TopLeft[2]+StatSize[2]/2
+Return
+
+ExtractNumbers(MyString){
+	firstdot := 0
+	Loop, Parse, MyString
+	{
+		If A_LoopField is Number
+			NewVar .= A_LoopField
+		IfInString,A_LoopField,.
+		{
+			if (firstdot = 0){
+				NewVar .= A_LoopField
+				firstdot := 1
+			}
+		}
+		IfInString,A_LoopField,`,
+			NewVar .= A_LoopField
+		IfInString,A_LoopField,-
+			NewVar .= A_LoopField
+	}
+	checklastdigit := SubStr(NewVar, 0) ;;removes a last dot
+		IfInString, checklastdigit , . 
+			StringTrimRight, NewVar, NewVar, 1
+	StringReplace, NewVar, NewVar,`,,., ;;replaces commas with dots
+	FoundPos := InStr(NewVar, "-")
+	if (FoundPos = 1){
+		StringTrimLeft,NewVar,NewVar,1
+	}
+	Return NewVar
 }
-
+	
 ConvertCoordinates(ByRef Array)
 {
 	WinGetPos, , , DiabloWidth, DiabloHeight, Diablo III
@@ -169,11 +187,11 @@ ConvertCoordinates(ByRef Array)
 	Position := Array[3]
 
 	;Pixel is always relative to the middle of the Diablo III window
-  If (Position == 1)
+	If (Position == 1)
   	Array[1] := Round(Array[1]*DiabloHeight/NativeDiabloHeight+(DiabloWidth-NativeDiabloWidth*DiabloHeight/NativeDiabloHeight)/2, 0)
 
-  ;Pixel is always relative to the left side of the Diablo III window or just relative to the Diablo III windowheight
-  If Else (Position == 2 || Position == 4)
+	;Pixel is always relative to the left side of the Diablo III window or just relative to the Diablo III windowheight
+	If Else (Position == 2 || Position == 4)
 		Array[1] := Round(Array[1]*(DiabloHeight/NativeDiabloHeight), 0)
 
 	;Pixel is always relative to the right side of the Diablo III window
