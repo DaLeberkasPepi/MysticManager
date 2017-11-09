@@ -225,15 +225,11 @@ ConvertCoordinates(ByRef Array)
 
 isWindowFullScreen(WinID)
 {
-   ;checks If the specIfied window is full screen
-	winID := WinExist("Diablo III")
-	If ( !winID )
-		Return false
-
-	WinGet style, Style, ahk_id %WinID%
-	WinGetPos ,,,winW,winH, %winTitle%
+   	;checks if the specified window has no border and not minimized therefore beeing fullscreen / windowedfullscreen
+	winID := WinExist(WinID)
+	WinGet WinStyle, Style, ahk_id %WinID%
 	; 0x800000 is WS_BORDER.
 	; 0x20000000 is WS_MINIMIZE.
-	; no border and not minimized
-	Return ((style & 0x20800000) or winH < A_ScreenHeight or winW < A_ScreenWidth) ? false : true
+	; combined = no border and not minimized
+	Return (WinStyle & 0x20800000) ? false : true
 }
