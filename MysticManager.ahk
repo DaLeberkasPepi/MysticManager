@@ -24,14 +24,16 @@ global D3ScreenResolution
 
 ;GUI Section
 GUI, New, ,OCR Enchantress
-GUI, Add, Text, x20 y10, Choose Attribute and value
-GUI, Add, DDL,x20 y30 w120 vAttribute, Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|% Damage|Cooldown|Resource|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|% Life|Physical|Cold|Fire|Lightning|Poison|Arcane
-GUI, Add, Button, x20 y80 w170 h30, Start
+GUI, Add, Text, x10 y10, Choose Attribute and value
+GUI, Add, DDL,x10 y30 w120 vAttribute, Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|Damage|Cooldown|Resource|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
 GUI, Add, Edit, x150 y30 w40 vStatRoll
+GUI, Add, Edit, x10 y60 w180 vCustomStat
 
 ;Tries
-GUI, Add, Text, x20 y60, Number of Tries:
-GUI, Add, Edit, x150 y55 w40 vTries, 50
+GUI, Add, Text, x10 y90, Number of Tries:
+GUI, Add, Edit, x150 y85 w40 vTries, 50
+
+GUI, Add, Button,x10 y110 w180 h30, Start
 
 GUI, Show
 return
@@ -44,6 +46,10 @@ ButtonStart:
 GUI, Hide
 WinActivate, Diablo III
 GUIControlGet, Attribute
+GUIControlGet, CustomStat
+If (Attribute == "")
+	If (CustomStat != "")
+		Attribute := CustomStat
 
 GUIControlGet, Tries
 If (Tries == "")
