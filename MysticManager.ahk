@@ -47,17 +47,25 @@ GUI, Hide
 WinActivate, Diablo III
 GUIControlGet, Attribute
 GUIControlGet, CustomStat
+GUIControlGet, Tries
+GUIControlGet, StatRoll
+
 If (Attribute == "")
 	If (CustomStat != "")
 		Attribute := CustomStat
-
-GUIControlGet, Tries
+		
 If (Tries == "")
 	Exit
-
-GUIControlGet, StatRoll
+	
 If (StatRoll == "")
 	Exit
+IfInString, StatRoll, -		;must be a dmg range
+{
+	DMGRange := StrSplit(StatRoll , -)
+	DMGRange[1] := ExtractNumbers(DMGRange[1])
+	DMGRange[2] := ExtractNumbers(DMGRange[2])
+	StatRoll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
+}
 
 WinGetPos, DiabloX, DiabloY, DiabloWidth, DiabloHeight, Diablo III
 If (D3ScreenResolution != DiabloWidth*DiabloHeight)
@@ -116,7 +124,15 @@ RunReaders:
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
 		%A_Index%Stat := clipboard
-		%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
+		IfInString, %A_Index%Roll, -		;must be a dmg range
+		{
+			DMGRange := StrSplit(%A_Index%Roll , -)
+			DMGRange[1] := ExtractNumbers(DMGRange[1])
+			DMGRange[2] := ExtractNumbers(DMGRange[2])
+			%A_Index%Roll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
+		}
+		Else
+			%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
 	}
 Return
 
