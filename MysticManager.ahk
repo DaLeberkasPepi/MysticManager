@@ -124,9 +124,9 @@ RunReaders:
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
 		%A_Index%Stat := clipboard
-		IfInString, %A_Index%Roll, -		;must be a dmg range
+		IfInString, %A_Index%Stat, -		;must be a dmg range
 		{
-			DMGRange := StrSplit(%A_Index%Roll , -)
+			DMGRange := StrSplit(%A_Index%Stat , -)
 			DMGRange[1] := ExtractNumbers(DMGRange[1])
 			DMGRange[2] := ExtractNumbers(DMGRange[2])
 			%A_Index%Roll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
