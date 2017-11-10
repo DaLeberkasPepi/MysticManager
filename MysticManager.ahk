@@ -7,7 +7,7 @@ CoordMode, Pixel, Screen
 CoordMode, Mouse, Screen
 
 global D3ScreenResolution
-,ScreenMode
+,Fullscreen
 ,DiabloX
 ,DiabloY
 ,SelectField := 0
@@ -35,10 +35,10 @@ GUI, Add, Edit, x150 y85 w40 vTries, 50
 
 GUI, Add, Button,x10 y110 w180 h30, Start
 
+ESC::
 GUI, Show
 return
 
-ESC::
 GuiClose:
 ExitApp
 
@@ -81,7 +81,7 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 	,SelectProperty := [350, 1045, 2]
 
 	;convert coordinates for the used resolution of Diablo III
-	ScreenMode := isWindowFullScreen("Diablo III")
+	Fullscreen := isWindowFullScreen("Diablo III")
 	ConvertCoordinates(StepWindowTopLeft)
 	ConvertCoordinates(StepWindowSize)
 	ConvertCoordinates(Stat1TopLeft)
@@ -117,9 +117,18 @@ Return
 RunReaders:
 	Loop 3
 	{
-		Stat%A_Index%ButtomRight := Object()
-		Stat%A_Index%ButtomRight[1] := Stat%A_Index%TopLeft[1] + StatSize[1]
-		Stat%A_Index%ButtomRight[2] := Stat%A_Index%TopLeft[2] + StatSize[2]
+		If (Fullscreen == true)
+ 		{
+			Stat%A_Index%ButtomRight := Object()
+			Stat%A_Index%ButtomRight[1] := Stat%A_Index%TopLeft[1] + StatSize[1]
+			Stat%A_Index%ButtomRight[2] := Stat%A_Index%TopLeft[2] + StatSize[2]
+		}
+		Else
+		{
+			Stat%A_Index%ButtomRight := Object()
+			Stat%A_Index%ButtomRight[1] := Stat%A_Index%TopLeft[1] + StatSize[1]
+			Stat%A_Index%ButtomRight[2] := Stat%A_Index%TopLeft[2] + StatSize[2]
+		}
 		StringRun := A_ScriptDir . "\Capture2Text\Capture2Text_CLI.exe --clipboard -o lastread.txt --output-file-append --screen-rect """ . Stat%A_Index%TopLeft[1] . " " . Stat%A_Index%TopLeft[2] . " " . Stat%A_Index%ButtomRight[1] . " " . Stat%A_Index%ButtomRight[2] . """"
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
@@ -200,10 +209,12 @@ ConvertCoordinates(ByRef Array)
 	NativeDiabloHeight := 1440
 	NativeDiabloWidth := 2560
 
- 	If (ScreenMode == false)
+ 	If (Fullscreen == false)
  	{
-		DiabloWidth := DiabloWidth-16
-		DiabloHeight := DiabloHeight-39
+		SysGet, BorderX, 32
+		SysGet, BorderY, 33
+		DiabloWidth := DiabloWidth - BorderX
+		DiabloHeight := DiabloHeight - BorderY
 	}
 
 	Position := Array[3]
