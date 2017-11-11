@@ -7,23 +7,20 @@ CoordMode, Pixel, Screen
 CoordMode, Mouse, Screen
 
 global D3ScreenResolution
-,ScreenMode
 ,DiabloX
 ,DiabloY
-,SelectField := 0
+,DiabloY
 ,Compare1
 ,Compare2
 ,AIndexSave
 ,Stat1Roll
 ,Stat2Roll
 ,Stat3Roll
-,SleepSelect := 1650
-,SleepClick := 100
 
 ;Hotkey, Pause, EarlyTerm ;Exit with Pause Key
 
 ;GUI Section
-GUI, New, ,OCR Enchantress
+GUI, New, , %A_Script%
 GUI, Add, Text, x10 y10, Choose Attribute and value
 GUI, Add, DDL,x10 y30 w120 vAttribute, ||Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|`% Damage|Damage|Cooldown|Resource|Sockets|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|`% Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
 GUI, Add, Edit, x150 y45 w80 vStatRoll
@@ -31,14 +28,20 @@ GUI, Add, Edit, x10 y60 w120 vCustomStat
 
 ;Tries
 GUI, Add, Text, x10 y90, Number of Tries:
-GUI, Add, Edit, x150 y85 w80 vTries, 50
+GUI, Add, Edit, x190 y90 w40 vTries, 50
 
-GUI, Add, Button,x10 y110 w220 h30, Start
+;Sleeptimers
+GUI, Add, Text, x10 y120, Sleep after clicking replace [ms]:
+GUI, Add, Edit, x190 y120 w40 vSleepSelect, 1650
+GUI, Add, Text, x10 y150, Sleep after clicking select [ms]:
+GUI, Add, Edit, x190 y150 w40 vSleepClick, 100
 
-ESC::
+GUI, Add, Button,x10 y180 w220 h30, Start
+
 GUI, Show
 return
 
+ESC::
 GuiClose:
 ExitApp
 
@@ -49,6 +52,8 @@ GUIControlGet, Attribute
 GUIControlGet, CustomStat
 GUIControlGet, Tries
 GUIControlGet, StatRoll
+GUIControlGet, SleepSelect
+GUIControlGet, SleepClick
 
 If (Attribute == "")
 	If (CustomStat != "")
@@ -65,7 +70,7 @@ IfInString, StatRoll, -		;must be a dmg range
 	DMGRange := StrSplit(StatRoll , "-")
 	DMGRange[1] := ExtractNumbers(DMGRange[1])
 	DMGRange[2] := ExtractNumbers(DMGRange[2])
-	StatRoll := Floor((DMGRange[1] + DMGRange[2]) / 2)	;calculate median of the lowest and highest dmg numbers
+	StatRoll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
 }
 
 WinGetPos, DiabloX, DiabloY, DiabloWidth, DiabloHeight, Diablo III
@@ -104,11 +109,11 @@ Loop %Tries%
 	Sleep, %SleepClick%
 	If (SecondRoll >= StatRoll) || (FirstRoll >= StatRoll)
 	{	
-		FirstStat := FirstRoll := SecondStat := SecondRoll := ""
+		FirstStat := FirstRoll := SecondStat := SecondRoll := ThirdStat := ThirdRoll := ""
 		Break
 	}
 	
-	FirstStat := FirstRoll := SecondStat := SecondRoll := ""
+	FirstStat := FirstRoll := SecondStat := SecondRoll := ThirdStat := ThirdRoll := ""
 }
 GUI, Show
 Return
@@ -130,7 +135,7 @@ RunReaders:
 			DMGRange := StrSplit(%A_Index%Stat , "-")
 			DMGRange[1] := ExtractNumbers(DMGRange[1])
 			DMGRange[2] := ExtractNumbers(DMGRange[2])
-			%A_Index%Roll := Floor((DMGRange[1] + DMGRange[2]) / 2)	;calculate median of the lowest and highest dmg numbers
+			%A_Index%Roll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
 		}
 		Else
 			%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
@@ -193,7 +198,7 @@ ExtractNumbers(MyString){
 	checklastdigit := SubStr(NewVar, 0) ;;removes a last dot
 		IfInString, checklastdigit , . 
 			StringTrimRight, NewVar, NewVar, 1
-	StringReplace, NewVar, NewVar,`,,., ;;replaces commas with dots
+	StringReplace, NewVar, NewVar,`,,, ;;remove dots
 	FoundPos := InStr(NewVar, "-")
 	if (FoundPos = 1){
 		StringTrimLeft,NewVar,NewVar,1
