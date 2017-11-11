@@ -35,10 +35,10 @@ GUI, Add, Edit, x150 y85 w80 vTries, 50
 
 GUI, Add, Button,x10 y110 w220 h30, Start
 
+ESC::
 GUI, Show
 return
 
-ESC::
 GuiClose:
 ExitApp
 
@@ -212,8 +212,10 @@ ConvertCoordinates(ByRef Array)
 
  	If (FullScreen("Diablo III") == false)
  	{
-		DiabloWidth := DiabloWidth-16
-		DiabloHeight := DiabloHeight-39
+		SysGet, BorderX, 32
+		SysGet, BorderY, 33
+ 		DiabloWidth := DiabloWidth - BorderX
+ 		DiabloHeight := DiabloHeight - BorderY
 	}
 
 	Position := Array[3]
