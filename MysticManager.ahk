@@ -25,15 +25,15 @@ global D3ScreenResolution
 ;GUI Section
 GUI, New, ,OCR Enchantress
 GUI, Add, Text, x10 y10, Choose Attribute and value
-GUI, Add, DDL,x10 y30 w120 vAttribute, Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|Damage|Cooldown|Resource|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
-GUI, Add, Edit, x150 y30 w40 vStatRoll
-GUI, Add, Edit, x10 y60 w180 vCustomStat
+GUI, Add, DDL,x10 y30 w120 vAttribute, ||Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|`% Damage|Damage|Cooldown|Resource|Sockets|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|`% Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
+GUI, Add, Edit, x150 y45 w80 vStatRoll
+GUI, Add, Edit, x10 y60 w120 vCustomStat
 
 ;Tries
 GUI, Add, Text, x10 y90, Number of Tries:
-GUI, Add, Edit, x150 y85 w40 vTries, 50
+GUI, Add, Edit, x150 y85 w80 vTries, 50
 
-GUI, Add, Button,x10 y110 w180 h30, Start
+GUI, Add, Button,x10 y110 w220 h30, Start
 
 GUI, Show
 return
@@ -47,17 +47,26 @@ GUI, Hide
 WinActivate, Diablo III
 GUIControlGet, Attribute
 GUIControlGet, CustomStat
+GUIControlGet, Tries
+GUIControlGet, StatRoll
+
 If (Attribute == "")
 	If (CustomStat != "")
 		Attribute := CustomStat
-
-GUIControlGet, Tries
+		
 If (Tries == "")
 	Exit
-
-GUIControlGet, StatRoll
+	
 If (StatRoll == "")
 	Exit
+IfInString, StatRoll, -		;must be a dmg range
+{
+	StatRoll := StrReplace(StatRoll, "—" , "-")
+	DMGRange := StrSplit(StatRoll , "-")
+	DMGRange[1] := ExtractNumbers(DMGRange[1])
+	DMGRange[2] := ExtractNumbers(DMGRange[2])
+	StatRoll := Floor((DMGRange[1] + DMGRange[2]) / 2)	;calculate median of the lowest and highest dmg numbers
+}
 
 WinGetPos, DiabloX, DiabloY, DiabloWidth, DiabloHeight, Diablo III
 If (D3ScreenResolution != DiabloWidth*DiabloHeight)
@@ -73,7 +82,6 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 	,SelectProperty := [350, 1045, 2]
 
 	;convert coordinates for the used resolution of Diablo III
-	ScreenMode := isWindowFullScreen("Diablo III")
 	ConvertCoordinates(StepWindowTopLeft)
 	ConvertCoordinates(StepWindowSize)
 	ConvertCoordinates(Stat1TopLeft)
@@ -116,7 +124,16 @@ RunReaders:
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
 		%A_Index%Stat := clipboard
-		%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "—" , "-")
+		IfInString, %A_Index%Stat, -		;must be a dmg range
+		{
+			DMGRange := StrSplit(%A_Index%Stat , "-")
+			DMGRange[1] := ExtractNumbers(DMGRange[1])
+			DMGRange[2] := ExtractNumbers(DMGRange[2])
+			%A_Index%Roll := Floor((DMGRange[1] + DMGRange[2]) / 2)	;calculate median of the lowest and highest dmg numbers
+		}
+		Else
+			%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
 	}
 Return
 
@@ -125,26 +142,34 @@ Choose:
 	{
 		IfInString, %A_Index%Stat, %Attribute%
 		{
-			If (FirstRoll == "")		;only if the FirstRoll is still Zero, using the fact that the max possible occurences of the right StatRoll can't be higher than 2
+			IF (SecondRoll == "") && (FirstRoll != "")		;only if the SecondRoll is still Zero
+			{
+				SecondStat := A_Index
+				SecondRoll := %A_Index%Roll
+			}
+			If (FirstRoll == "")					;only if the FirstRoll is still Zero
 			{
 				FirstStat := A_Index
 				FirstRoll := %A_Index%Roll
 			}
 			Else
 			{
-				SecondStat := A_Index
-				SecondRoll := %A_Index%Roll
+				ThirdStat := A_Index
+				ThirdRoll := %A_Index%Roll
 			}
 		}
 	}
 	If (FirstRoll == "")			;this would mean no Stat met the search pattern, keeping the first stat in this case
 		MouseClick, Left, Stat1TopLeft[1]+StatSize[1]/2, Stat1TopLeft[2]+StatSize[2]/2
 	
-	If (SecondRoll == "") || (FirstRoll >= SecondRoll)		;this would mean only 1 Stat met the search pattern or the first roll was at least the same roll as the second roll, therefore choosing the first roll
+	If (SecondRoll == "") && (ThirdRoll == "") || (FirstRoll >= SecondRoll) && (ThirdRoll == "") || (FirstRoll >= SecondRoll) && (FirstRoll >= ThirdRoll)		;check if the first stat was the highest roll
 		MouseClick, Left, Stat%FirstStat%TopLeft[1]+StatSize[1]/2, Stat%FirstStat%TopLeft[2]+StatSize[2]/2
 
-	If (SecondRoll > FirstRoll)	;this would mean the second roll was higher than the first one, therefore choosing that one
+	If (SecondRoll >= FirstRoll) && (ThirdRoll == "") || (SecondRoll >= FirstRoll) && (SecondRoll >= ThirdRoll)		;check if the second stat was the highest roll
 		MouseClick, Left, Stat%SecondStat%TopLeft[1]+StatSize[1]/2, Stat%SecondStat%TopLeft[2]+StatSize[2]/2
+	
+	If (ThirdRoll >= FirstRoll) && (ThirdRoll >= SecondRoll)		;check if the third stat was the highest roll
+		MouseClick, Left, Stat%ThirdStat%TopLeft[1]+StatSize[1]/2, Stat%ThirdStat%TopLeft[2]+StatSize[2]/2
 Return
 
 ExtractNumbers(MyString){
@@ -184,7 +209,7 @@ ConvertCoordinates(ByRef Array)
 	NativeDiabloHeight := 1440
 	NativeDiabloWidth := 2560
 
- 	If (ScreenMode == false)
+ 	If (FullScreen("Diablo III") == false)
  	{
 		DiabloWidth := DiabloWidth-16
 		DiabloHeight := DiabloHeight-39
@@ -207,17 +232,13 @@ ConvertCoordinates(ByRef Array)
 	Array[2] := Round(Array[2]*(DiabloHeight/NativeDiabloHeight), 0)
 }
 
-isWindowFullScreen(WinID)
+FullScreen(WinID)
 {
-   ;checks If the specIfied window is full screen
-	winID := WinExist("Diablo III")
-	If ( !winID )
-		Return false
-
-	WinGet style, Style, ahk_id %WinID%
-	WinGetPos ,,,winW,winH, %winTitle%
-	; 0x800000 is WS_BORDER.
-	; 0x20000000 is WS_MINIMIZE.
-	; no border and not minimized
-	Return ((style & 0x20800000) or winH < A_ScreenHeight or winW < A_ScreenWidth) ? false : true
+   	;checks if the specified window has no border and not minimized therefore beeing fullscreen / windowedfullscreen
+	winID := WinExist(WinID)
+	WinGet WinStyle, Style, ahk_id %WinID%
+	If (WinStyle == 0x16CE0000)
+		Return False
+	Else
+		Return True
 }
