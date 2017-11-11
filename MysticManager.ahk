@@ -201,6 +201,7 @@ ExtractNumbers(MyString){
 	Return NewVar
 }
 	
+
 ConvertCoordinates(ByRef Array)
 {
 	WinGetPos, , , DiabloWidth, DiabloHeight, Diablo III
