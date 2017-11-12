@@ -66,7 +66,8 @@ IfInString, StatRoll, -		;must be a dmg range
 	StatRoll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
 }
 
-WinGetPos, DiabloX, DiabloY, DiabloWidth, DiabloHeight, Diablo III
+GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
+
 If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 {
 	global StepWindowTopLeft := [58, 463, 2]
@@ -112,8 +113,6 @@ GUI, Show
 Return
 
 RunReaders:
-	GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
-	
 	Loop 3
 	{
 		TopLeftX := Stat%A_Index%TopLeft[1] + DiabloX
@@ -124,7 +123,13 @@ RunReaders:
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
 		%A_Index%Stat := clipboard
+		
+		;fix some common ocr missreadings
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "—" , "-")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "°/o" , "%")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "+63%" , "+6%")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age" , "Damage")	
+		
 		IfInString, %A_Index%Stat, -		;must be a dmg range
 		{
 			DMGRange := StrSplit(%A_Index%Stat , "-")
