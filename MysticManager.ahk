@@ -7,15 +7,6 @@ CoordMode, Pixel, Client
 CoordMode, Mouse, Client
 
 global D3ScreenResolution
-,DiabloX
-,DiabloY
-,DiabloY
-,Compare1
-,Compare2
-,AIndexSave
-,Stat1Roll
-,Stat2Roll
-,Stat3Roll
 ,NativeDiabloHeight := 1440
 ,NativeDiabloWidth := 2560
 
@@ -231,17 +222,6 @@ ConvertCoordinates(ByRef Array)
 		Array[1] := Round(DiabloWidth-(NativeDiabloWidth-Array[1])*DiabloHeight/NativeDiabloHeight, 0)
 
 	Array[2] := Round(Array[2]*(DiabloHeight/NativeDiabloHeight), 0)
-}
-
-FullScreen(WinID)
-{
-   	;checks if the specified window has no border and not minimized therefore beeing fullscreen / windowedfullscreen
-	winID := WinExist(WinID)
-	WinGet WinStyle, Style, ahk_id %WinID%
-	If (WinStyle == 0x16CE0000)
-		Return False
-	Else
-		Return True
 }
 
 GetClientWindowInfo(ClientWindow, ByRef ClientWidth, ByRef ClientHeight, ByRef ClientX, ByRef ClientY)
