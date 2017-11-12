@@ -24,7 +24,7 @@ global D3ScreenResolution
 ;GUI Section
 GUI, New, , %A_Script%
 GUI, Add, Text, x10 y10, Choose Attribute and value
-GUI, Add, DDL,x10 y30 w120 vAttribute, ||Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|Area Damage|`% Damage|Damage|Cooldown|Resource|Sockets|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|`% Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
+GUI, Add, DDL,x10 y30 w120 vAttribute, ||Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|`% Area Damage|`% Damage|Damage|Cooldown|Resource|Sockets|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|`% Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
 GUI, Add, Edit, x150 y45 w80 vStatRoll
 GUI, Add, Edit, x10 y60 w120 vCustomStat
 
