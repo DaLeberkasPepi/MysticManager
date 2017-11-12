@@ -3,8 +3,8 @@ SendMode Input
 SetWorkingDir %A_ScriptDir%
 #IfWinActive, Diablo III
 #SingleInstance force
-CoordMode, Pixel, Screen
-CoordMode, Mouse, Screen
+CoordMode, Pixel, Client
+CoordMode, Mouse, Client
 
 global D3ScreenResolution
 ,DiabloX
@@ -16,6 +16,8 @@ global D3ScreenResolution
 ,Stat1Roll
 ,Stat2Roll
 ,Stat3Roll
+,NativeDiabloHeight := 1440
+,NativeDiabloWidth := 2560
 
 ;Hotkey, Pause, EarlyTerm ;Exit with Pause Key
 
@@ -118,14 +120,16 @@ Loop %Tries%
 GUI, Show
 Return
 
-
 RunReaders:
+	GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
+	
 	Loop 3
 	{
-		Stat%A_Index%ButtomRight := Object()
-		Stat%A_Index%ButtomRight[1] := Stat%A_Index%TopLeft[1] + StatSize[1]
-		Stat%A_Index%ButtomRight[2] := Stat%A_Index%TopLeft[2] + StatSize[2]
-		StringRun := A_ScriptDir . "\Capture2Text\Capture2Text_CLI.exe --clipboard -o lastread.txt --output-file-append --screen-rect """ . Stat%A_Index%TopLeft[1] . " " . Stat%A_Index%TopLeft[2] . " " . Stat%A_Index%ButtomRight[1] . " " . Stat%A_Index%ButtomRight[2] . """"
+		TopLeftX := Stat%A_Index%TopLeft[1] + DiabloX
+		TopLeftY := Stat%A_Index%TopLeft[2] + DiabloY
+		ButtomRightX := Stat%A_Index%TopLeft[1] + DiabloX + StatSize[1]
+		ButtomRightY := Stat%A_Index%TopLeft[2] + DiabloY + StatSize[2]
+		StringRun := A_ScriptDir . "\Capture2Text\Capture2Text_CLI.exe --clipboard -o lastread.txt --output-file-append --screen-rect """ . TopLeftX . " " . TopLeftY . " " . ButtomRightX . " " . ButtomRightY . """"
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
 		%A_Index%Stat := clipboard
@@ -206,23 +210,12 @@ ExtractNumbers(MyString){
 	Return NewVar
 }
 	
-
 ConvertCoordinates(ByRef Array)
 {
-	WinGetPos, , , DiabloWidth, DiabloHeight, Diablo III
+	GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
+	
 	D3ScreenResolution := DiabloWidth*DiabloHeight
-
-	NativeDiabloHeight := 1440
-	NativeDiabloWidth := 2560
-
- 	If (FullScreen("Diablo III") == false)
- 	{
-		SysGet, BorderX, 32
-		SysGet, BorderY, 33
- 		DiabloWidth := DiabloWidth - BorderX
- 		DiabloHeight := DiabloHeight - BorderY
-	}
-
+	
 	Position := Array[3]
 
 	;Pixel is always relative to the middle of the Diablo III window
@@ -249,4 +242,17 @@ FullScreen(WinID)
 		Return False
 	Else
 		Return True
+}
+
+GetClientWindowInfo(ClientWindow, ByRef ClientWidth, ByRef ClientHeight, ByRef ClientX, ByRef ClientY)
+{
+	hwnd := WinExist(ClientWindow)
+    VarSetCapacity(rc, 16)
+    DllCall("GetClientRect", "uint", hwnd, "uint", &rc)
+    ClientWidth := NumGet(rc, 8, "int")
+    ClientHeight := NumGet(rc, 12, "int")
+    
+    WinGetPos, WindowX, WindowY, WindowWidth, WindowHeight, %ClientWindow%
+    ClientX := Floor(WindowX + (WindowWidth - ClientWidth) / 2)
+    ClientY := Floor(WindowY + (WindowHeight - ClientHeight - (WindowWidth - ClientWidth) / 2))
 }
