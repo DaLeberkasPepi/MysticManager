@@ -29,7 +29,8 @@ GUI, Add, Edit, x190 y120 w40 vSleepSelect, 1650
 GUI, Add, Text, x10 y150, Sleep after clicking select [ms]:
 GUI, Add, Edit, x190 y150 w40 vSleepClick, 100
 
-GUI, Add, Button,x10 y180 w220 h30, Start
+GUI, Add, Text, x10 y180, Press [ESC] to stop the script at any point!!!
+GUI, Add, Button,x10 y210 w220 h30, Start
 
 GUI, Show
 return
