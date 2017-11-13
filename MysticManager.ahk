@@ -60,11 +60,11 @@ If (StatRoll == "")
 	Exit
 IfInString, StatRoll, -		;must be a dmg range
 {
-	StatRoll := StrReplace(StatRoll, "—" , "-")
+	StatRoll := StrReplace(StatRoll, "â€”" , "-")
 	DMGRange := StrSplit(StatRoll , "-")
 	DMGRange[1] := ExtractNumbers(DMGRange[1])
 	DMGRange[2] := ExtractNumbers(DMGRange[2])
-	StatRoll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
+	StatRoll := (DMGRange[1] + DMGRange[2]) / 2	;calculate mean of the lowest and highest dmg numbers
 }
 
 GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
@@ -126,8 +126,8 @@ RunReaders:
 		%A_Index%Stat := clipboard
 		
 		;fix some common ocr missreadings
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "—" , "-")
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "°/o" , "%")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "â€”" , "-")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "Â°/o" , "%")
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "+63%" , "+6%")
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age" , "Damage")	
 		
@@ -136,7 +136,7 @@ RunReaders:
 			DMGRange := StrSplit(%A_Index%Stat , "-")
 			DMGRange[1] := ExtractNumbers(DMGRange[1])
 			DMGRange[2] := ExtractNumbers(DMGRange[2])
-			%A_Index%Roll := (DMGRange[1] + DMGRange[2]) / 2	;calculate median of the lowest and highest dmg numbers
+			%A_Index%Roll := (DMGRange[1] + DMGRange[2]) / 2	;calculate mean of the lowest and highest dmg numbers
 		}
 		Else
 			%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
