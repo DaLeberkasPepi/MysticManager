@@ -1,4 +1,4 @@
-# MysticManager
+# MysticManager 
 This script is written in the Language `AutoHotkey`. The main purpose of this script is to make it possible to reroll items at the Mystic automatically.
 
 ## Usage
@@ -12,3 +12,8 @@ This script is written in the Language `AutoHotkey`. The main purpose of this sc
 Before you start the script you have to make sure that you've already selected the stat you want to reroll. It should look like this:
 
 ![alt text](https://i.imgur.com/H0eo7Tu.png)
+
+# Special Thanks
+* @duderde - distributing the first versions of OCR Enchange.
+* @Hefero - for his work on https://github.com/Hefero/DiabloAttributeSelector from which i stole some key functions.
+* @CapnBry - gor his work on Remove clipboard transfer and persist gui settings.
