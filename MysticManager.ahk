@@ -13,6 +13,14 @@ global D3ScreenResolution
 
 ;Hotkey, Pause, EarlyTerm ;Exit with Pause Key
 
+; Load Settings
+;IniRead, Attribute, MysticManager.ini, Settings, Attribute
+;IniRead, CustomStat, MysticManager.ini, Settings, CustomStat
+;IniRead, StatRoll, MysticManager.ini, Settings, StatRoll
+IniRead, Tries, MysticManager.ini, Settings, Tries, 50
+IniRead, SleepSelect, MysticManager.ini, Settings, SleepSelect, 1650
+IniRead, SleepClick, MysticManager.ini, Settings, SleepClick, 100
+
 ;GUI Section
 GUI, New, , %A_Script%
 GUI, Add, Text, x10 y10, Choose Attribute and value
@@ -22,13 +30,13 @@ GUI, Add, Edit, x10 y60 w120 vCustomStat
 
 ;Tries
 GUI, Add, Text, x10 y90, Number of Tries:
-GUI, Add, Edit, x190 y90 w40 vTries, 50
+GUI, Add, Edit, x190 y90 w40 vTries, %Tries%
 
 ;Sleeptimers
 GUI, Add, Text, x10 y120, Sleep after clicking replace [ms]:
-GUI, Add, Edit, x190 y120 w40 vSleepSelect, 1650
+GUI, Add, Edit, x190 y120 w40 vSleepSelect, %SleepSelect%
 GUI, Add, Text, x10 y150, Sleep after clicking select [ms]:
-GUI, Add, Edit, x190 y150 w40 vSleepClick, 100
+GUI, Add, Edit, x190 y150 w40 vSleepClick, %SleepClick%
 
 GUI, Add, Text, x10 y180, Press [ESC] to stop the script at any point!!!
 GUI, Add, Button,x10 y210 w220 h30, Start
@@ -49,6 +57,14 @@ GUIControlGet, Tries
 GUIControlGet, StatRoll
 GUIControlGet, SleepSelect
 GUIControlGet, SleepClick
+
+; Save all the settings
+IniWrite, %Attribute%, MysticManager.ini, Settings, Attribute
+IniWrite, %CustomStat%, MysticManager.ini, Settings, CustomStat
+IniWrite, %StatRoll%, MysticManager.ini, Settings, StatRoll
+IniWrite, %Tries%, MysticManager.ini, Settings, Tries
+IniWrite, %SleepSelect%, MysticManager.ini, Settings, SleepSelect
+IniWrite, %SleepClick%, MysticManager.ini, Settings, SleepClick
 
 If (Attribute == "")
 	If (CustomStat != "")
@@ -94,6 +110,7 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 
 ;Start of the script. You have to be at the enchantress and the item has to be at least once enchanted (else you would have to enter the attribute you wanted to change which would be a waste of time)
 
+; Start new output-*.txt files
 BackupLogFile()
 
 Loop %Tries%
