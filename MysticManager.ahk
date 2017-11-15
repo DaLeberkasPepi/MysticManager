@@ -5,6 +5,7 @@ SetWorkingDir %A_ScriptDir%
 #SingleInstance force
 CoordMode, Pixel, Client
 CoordMode, Mouse, Client
+FileEncoding, UTF-8
 
 global D3ScreenResolution
 ,NativeDiabloHeight := 1440
@@ -93,6 +94,8 @@ If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 
 ;Start of the script. You have to be at the enchantress and the item has to be at least once enchanted (else you would have to enter the attribute you wanted to change which would be a waste of time)
 
+BackupLogFile()
+
 Loop %Tries%
 {
 	MouseClick, Left, SelectProperty[1], SelectProperty[2]
@@ -120,16 +123,19 @@ RunReaders:
 		TopLeftY := Stat%A_Index%TopLeft[2] + DiabloY
 		ButtomRightX := Stat%A_Index%TopLeft[1] + DiabloX + StatSize[1]
 		ButtomRightY := Stat%A_Index%TopLeft[2] + DiabloY + StatSize[2]
-		StringRun := A_ScriptDir . "\Capture2Text\Capture2Text_CLI.exe --clipboard -o lastread.txt --output-file-append --screen-rect """ . TopLeftX . " " . TopLeftY . " " . ButtomRightX . " " . ButtomRightY . """"
+		StringRun := A_ScriptDir . "\Capture2Text\Capture2Text_CLI.exe -o output-ocr.txt --output-file-append --screen-rect """ . TopLeftX . " " . TopLeftY . " " . ButtomRightX . " " . ButtomRightY . """"
 		RunWait, %StringRun%,%A_ScriptDir%, Hide, ocrPID
 		Process, WaitClose, %ocrPID%
-		%A_Index%Stat := clipboard
+		%A_Index%Stat := GetCaptureOutput()
 		
 		;fix some common ocr missreadings
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "—" , "-")
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "°/o" , "%")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(150), "-") ; En Dash
+		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(151), "-") ; Em Dash
+		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(176) "/o" , "%") ; Degree /o
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "+63%" , "+6%")
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age" , "Damage")	
+		
+		FileAppend, % %A_Index%Stat "`n", output-sane.txt
 		
 		IfInString, %A_Index%Stat, -		;must be a dmg range
 		{
@@ -177,6 +183,15 @@ Choose:
 	If (ThirdRoll >= FirstRoll) && (ThirdRoll >= SecondRoll)		;check if the third stat was the highest roll
 		MouseClick, Left, Stat%ThirdStat%TopLeft[1]+StatSize[1]/2, Stat%ThirdStat%TopLeft[2]+StatSize[2]/2
 Return
+
+GetCaptureOutput()
+{
+	Loop, read, output-ocr.txt
+	{
+		LastLine := A_LoopReadLine
+	}
+	return %LastLine%
+}
 
 ExtractNumbers(MyString){
 	firstdot := 0
@@ -241,4 +256,12 @@ GetClientWindowInfo(ClientWindow, ByRef ClientWidth, ByRef ClientHeight, ByRef C
     WinGetPos, WindowX, WindowY, WindowWidth, WindowHeight, %ClientWindow%
     ClientX := Floor(WindowX + (WindowWidth - ClientWidth) / 2)
     ClientY := Floor(WindowY + (WindowHeight - ClientHeight - (WindowWidth - ClientWidth) / 2))
+}
+
+BackupLogFile()
+{
+	FileDelete, output-ocr.1.txt
+	FileMove, output-ocr.txt, output-ocr.1.txt
+	FileDelete, output-sane.1.txt
+	FileMove, output-sane.txt, output-sane.1.txt
 }
