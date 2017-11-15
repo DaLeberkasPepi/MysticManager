@@ -44,9 +44,11 @@ GUI, Add, Button,x10 y210 w220 h30, Start
 GUI, Show
 return
 
-ESC::
 GuiClose:
 ExitApp
+
+ESC::
+Reload
 
 ButtonStart:
 GUI, Hide
@@ -75,6 +77,9 @@ If (Tries == "")
 	
 If (StatRoll == "")
 	Exit
+
+StatRoll := StrReplace(StatRoll, "," , ".")
+
 IfInString, StatRoll, -		;must be a dmg range
 {
 	StatRoll := StrReplace(StatRoll, "—" , "-")
