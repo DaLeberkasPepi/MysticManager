@@ -35,9 +35,11 @@ GUI, Add, Button,x10 y210 w220 h30, Start
 GUI, Show
 return
 
-ESC::
 GuiClose:
 ExitApp
+
+ESC::
+Reload
 
 ButtonStart:
 GUI, Hide
@@ -58,9 +60,12 @@ If (Tries == "")
 	
 If (StatRoll == "")
 	Exit
+
+StatRoll := StrReplace(StatRoll, "," , ".")
+
 IfInString, StatRoll, -		;must be a dmg range
 {
-	StatRoll := StrReplace(StatRoll, "â€”" , "-")
+	StatRoll := StrReplace(StatRoll, "—" , "-")
 	DMGRange := StrSplit(StatRoll , "-")
 	DMGRange[1] := ExtractNumbers(DMGRange[1])
 	DMGRange[2] := ExtractNumbers(DMGRange[2])
@@ -126,7 +131,7 @@ RunReaders:
 		%A_Index%Stat := clipboard
 		
 		;fix some common ocr missreadings
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "â€”" , "-")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "—" , "-")
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "Â°/o" , "%")
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "+63%" , "+6%")
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age" , "Damage")	
