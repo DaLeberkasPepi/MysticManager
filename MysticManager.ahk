@@ -216,32 +216,29 @@ GetCaptureOutput()
 }
 
 ExtractNumbers(MyString){
-	firstdot := 0
-	Loop, Parse, MyString
-	{
-		If A_LoopField is Number
-			NewVar .= A_LoopField
-		IfInString,A_LoopField,.
-		{
-			if (firstdot = 0){
-				NewVar .= A_LoopField
-				firstdot := 1
-			}
-		}
-		IfInString,A_LoopField,`,
-			NewVar .= A_LoopField
-		IfInString,A_LoopField,-
-			NewVar .= A_LoopField
-	}
-	checklastdigit := SubStr(NewVar, 0) ;;removes a last dot
-		IfInString, checklastdigit , . 
-			StringTrimRight, NewVar, NewVar, 1
-	StringReplace, NewVar, NewVar,`,,, ;;remove dots
-	FoundPos := InStr(NewVar, "-")
-	if (FoundPos = 1){
-		StringTrimLeft,NewVar,NewVar,1
-	}
-	Return NewVar
+    firstdot := 0
+    Loop, Parse, MyString
+    {
+        If A_LoopField is Number
+            NewVar .= A_LoopField
+        IfInString,A_LoopField,.
+        {
+            if (firstdot = 0){
+                NewVar .= A_LoopField
+                firstdot := 1
+            }
+        }
+        IfInString,A_LoopField,`,
+            NewVar .= A_LoopField
+        IfInString,A_LoopField,-
+            NewVar .= A_LoopField
+    }
+    StringReplace, NewVar, NewVar,`,,, ;;remove dots
+    ; Remove Leading dashes dots and commas
+    NewVar := RegExReplace(NewVar, "^[\-.,]*")
+    ; Trailing
+    NewVar := RegExReplace(NewVar, "[\-.,]*$")
+    Return NewVar
 }
 	
 ConvertCoordinates(ByRef Array)
