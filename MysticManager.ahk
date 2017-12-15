@@ -216,29 +216,29 @@ GetCaptureOutput()
 }
 
 ExtractNumbers(MyString){
-    firstdot := 0
-    Loop, Parse, MyString
-    {
-        If A_LoopField is Number
-            NewVar .= A_LoopField
-        IfInString,A_LoopField,.
-        {
-            if (firstdot = 0){
-                NewVar .= A_LoopField
-                firstdot := 1
-            }
-        }
-        IfInString,A_LoopField,`,
-            NewVar .= A_LoopField
-        IfInString,A_LoopField,-
-            NewVar .= A_LoopField
-    }
-    StringReplace, NewVar, NewVar,`,,, ;;remove dots
-    ; Remove Leading dashes dots and commas
-    NewVar := RegExReplace(NewVar, "^[\-.,]*")
-    ; Trailing
-    NewVar := RegExReplace(NewVar, "[\-.,]*$")
-    Return NewVar
+	firstdot := 0
+	Loop, Parse, MyString
+	{
+		If A_LoopField is Number
+			NewVar .= A_LoopField
+		IfInString,A_LoopField,.
+		{
+			if (firstdot = 0){
+				NewVar .= A_LoopField
+				firstdot := 1
+			}
+		}
+		IfInString,A_LoopField,`,
+			NewVar .= A_LoopField
+		IfInString,A_LoopField,-
+			NewVar .= A_LoopField
+	}
+	StringReplace, NewVar, NewVar,`,,, ;;remove dots
+	; Remove Leading dashes dots and commas
+	NewVar := RegExReplace(NewVar, "^[\-.,]*")
+	; Trailing
+	NewVar := RegExReplace(NewVar, "[\-.,]*$")
+	Return NewVar
 }
 	
 ConvertCoordinates(ByRef Array)
@@ -267,14 +267,14 @@ ConvertCoordinates(ByRef Array)
 GetClientWindowInfo(ClientWindow, ByRef ClientWidth, ByRef ClientHeight, ByRef ClientX, ByRef ClientY)
 {
 	hwnd := WinExist(ClientWindow)
-    VarSetCapacity(rc, 16)
-    DllCall("GetClientRect", "uint", hwnd, "uint", &rc)
-    ClientWidth := NumGet(rc, 8, "int")
-    ClientHeight := NumGet(rc, 12, "int")
-    
-    WinGetPos, WindowX, WindowY, WindowWidth, WindowHeight, %ClientWindow%
-    ClientX := Floor(WindowX + (WindowWidth - ClientWidth) / 2)
-    ClientY := Floor(WindowY + (WindowHeight - ClientHeight - (WindowWidth - ClientWidth) / 2))
+	VarSetCapacity(rc, 16)
+	DllCall("GetClientRect", "uint", hwnd, "uint", &rc)
+	ClientWidth := NumGet(rc, 8, "int")
+	ClientHeight := NumGet(rc, 12, "int")
+
+	WinGetPos, WindowX, WindowY, WindowWidth, WindowHeight, %ClientWindow%
+	ClientX := Floor(WindowX + (WindowWidth - ClientWidth) / 2)
+	ClientY := Floor(WindowY + (WindowHeight - ClientHeight - (WindowWidth - ClientWidth) / 2))
 }
 
 BackupLogFile()
