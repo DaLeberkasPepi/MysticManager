@@ -1,4 +1,5 @@
 # MysticManager 
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/DaLeberkasPepi)
 This script is written in the Language `AutoHotkey`. The main purpose of this script is to make it possible to reroll items at the Mystic automatically.
 
 ## Usage
