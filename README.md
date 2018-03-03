@@ -17,3 +17,5 @@ Before you start the script you have to make sure that you've already selected t
 * @duderde - distributing the first versions of OCR Enchange.
 * @Hefero - for his work on https://github.com/Hefero/DiabloAttributeSelector from which i stole some key functions.
 * @CapnBry - gor his work on Remove clipboard transfer and persist gui settings.
+
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/DaLeberkasPepi)
