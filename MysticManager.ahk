@@ -1,7 +1,20 @@
+;========================================================================
+;
+; MysticManager v1.0.0
+;
+; rolls items till the desired stat roll is visible
+;
+; Created by DaLeberkasPepi
+;   https://github.com/DaLeberkasPepi
+;
+; Last Update: 2018-03-03 24:00 GMT+1
+;
+;========================================================================
+
 #NoEnv
 SendMode Input
 SetWorkingDir %A_ScriptDir%
-#IfWinActive, Diablo III
+#IfWinActive, ahk_class D3 Main Window Class
 #SingleInstance force
 CoordMode, Pixel, Client
 CoordMode, Mouse, Client
@@ -25,18 +38,18 @@ IniRead, SleepClick, MysticManager.ini, Settings, SleepClick, 100
 GUI, New, , %A_Script%
 GUI, Add, Text, x10 y10, Choose Attribute and value
 GUI, Add, DDL,x10 y30 w120 vAttribute, ||Strength|Dexterity|Intelligence|Vitality|Critical Hit Chance|Critical Hit Damage|`% Area Damage|`% Damage|Damage|Cooldown|Resource|Sockets|Attack Speed|Life per Second|Life per Hit|Life per Kill|Resistance|Armor|Health Globes|Pickup|Thorns|`% Life|Physical|Cold|Fire|Lightning|Poison|Arcane|Holy
-GUI, Add, Edit, x150 y45 w80 vStatRoll
-GUI, Add, Edit, x10 y60 w120 vCustomStat
+GUI, Add, Edit, x150 y45 w80 vStatRoll Limit Number
+GUI, Add, Edit, x10 y60 w120 vCustomStat Limit 
 
 ;Tries
 GUI, Add, Text, x10 y90, Number of Tries:
-GUI, Add, Edit, x190 y90 w40 vTries, %Tries%
+GUI, Add, Edit, x190 y90 w40 vTries Limit Number, %Tries%
 
 ;Sleeptimers
 GUI, Add, Text, x10 y120, Sleep after clicking replace [ms]:
-GUI, Add, Edit, x190 y120 w40 vSleepSelect, %SleepSelect%
+GUI, Add, Edit, x190 y120 w40 vSleepSelect Limit Number, %SleepSelect%
 GUI, Add, Text, x10 y150, Sleep after clicking select [ms]:
-GUI, Add, Edit, x190 y150 w40 vSleepClick, %SleepClick%
+GUI, Add, Edit, x190 y150 w40 vSleepClick Limit Number, %SleepClick%
 
 GUI, Add, Text, x10 y180, Press [ESC] to stop the script at any point!!!
 GUI, Add, Button,x10 y210 w220 h30, Start
@@ -52,7 +65,7 @@ Reload
 
 ButtonStart:
 GUI, Hide
-WinActivate, Diablo III
+WinActivate, ahk_class D3 Main Window Class
 GUIControlGet, Attribute
 GUIControlGet, CustomStat
 GUIControlGet, Tries
@@ -89,7 +102,7 @@ IfInString, StatRoll, -		;must be a dmg range
 	StatRoll := (DMGRange[1] + DMGRange[2]) / 2	;calculate mean of the lowest and highest dmg numbers
 }
 
-GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
+GetClientWindowInfo("ahk_class D3 Main Window Class", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
 
 If (D3ScreenResolution != DiabloWidth*DiabloHeight)
 {
@@ -243,7 +256,7 @@ ExtractNumbers(MyString){
 	
 ConvertCoordinates(ByRef Array)
 {
-	GetClientWindowInfo("Diablo III", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
+	GetClientWindowInfo("ahk_class D3 Main Window Class", DiabloWidth, DiabloHeight, DiabloX, DiabloY)
 	
 	D3ScreenResolution := DiabloWidth*DiabloHeight
 	
