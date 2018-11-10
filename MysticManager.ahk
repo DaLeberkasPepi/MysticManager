@@ -1,13 +1,13 @@
 ;========================================================================
 ;
-; MysticManager v1.0.0
+; MysticManager v1.0.1
 ;
 ; rolls items till the desired stat roll is visible
 ;
 ; Created by DaLeberkasPepi
 ;   https://github.com/DaLeberkasPepi
 ;
-; Last Update: 2018-03-03 24:00 GMT+1
+; Last Update: 2018-06-23 13:00 GMT+1
 ;
 ;========================================================================
 
@@ -248,9 +248,9 @@ ExtractNumbers(MyString){
 	}
 	StringReplace, NewVar, NewVar,`,,, ;;remove dots
 	; Remove Leading dashes dots and commas
-	NewVar := RegExReplace(NewVar, "^[\-.,]*")
+	NewVar := RegExReplace(NewVar, "^[\-.,A-Za-z]*")
 	; Trailing
-	NewVar := RegExReplace(NewVar, "[\-.,]*$")
+	NewVar := RegExReplace(NewVar, "[\-.,A-Za-z]*$")
 	Return NewVar
 }
 	
