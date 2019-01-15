@@ -8,6 +8,8 @@ This script is written in the Language `AutoHotkey`. The main purpose of this sc
 * If you want to roll for a stat that is not listed in the dropdown-menu e.g. skill dmg just type the stat in the [2.] edit field.
 * **Important!!!:** Only [1.] OR [2.] may contain a stat. Not both at the same time!
 * In the [3.] edit field you can type in at which roll of the given stat the script should stop rerolling. The rule for this is that it has to be equal or higher than the number you've typed into the edit field.
+* **This tool requires a resolution of 1024x768 or higher.**
+* **Make sure you download ALL files, including the Capture2Text folder. Use the green Download button.**
 
 Before you start the script you have to make sure that you've already selected the stat you want to reroll. It should look like this:
 
