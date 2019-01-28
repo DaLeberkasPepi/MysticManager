@@ -9,7 +9,8 @@ This script is written in the Language `AutoHotkey`. The main purpose of this sc
 * **Important!!!:** Only [1.] OR [2.] may contain a stat. Not both at the same time!
 * In the [3.] edit field you can type in at which roll of the given stat the script should stop rerolling. The rule for this is that it has to be equal or higher than the number you've typed into the edit field.
 * **This tool requires a resolution of 1024x768 or higher.**
-* **Make sure you download ALL files, including the Capture2Text folder. Use the green Download button.**
+* **Make sure you download ALL files, including the Capture2Text folder.**
+* **Make sure your Diablo III resolution is set to Windowed or Borderless!!!.**
 
 Before you start the script you have to make sure that you've already selected the stat you want to reroll. It should look like this:
 
