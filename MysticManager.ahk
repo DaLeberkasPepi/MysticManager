@@ -1,13 +1,13 @@
 ;========================================================================
 ;
-; MysticManager v1.0.1
+; MysticManager v1.0.2
 ;
 ; rolls items till the desired stat roll is visible
 ;
 ; Created by DaLeberkasPepi
 ;   https://github.com/DaLeberkasPepi
 ;
-; Last Update: 2018-06-23 13:00 GMT+1
+; Last Update: 2019-02-18 20:00 GMT+1
 ;
 ;========================================================================
 
@@ -91,11 +91,11 @@ If (Tries == "")
 If (StatRoll == "")
 	Exit
 
-StatRoll := StrReplace(StatRoll, "," , ".")
+StatRoll := StrReplace(StatRoll, Chr(150), "-") ; En Dash
+StatRoll := StrReplace(StatRoll, Chr(151), "-") ; Em Dash
 
 IfInString, StatRoll, -		;must be a dmg range
 {
-	StatRoll := StrReplace(StatRoll, "—" , "-")
 	DMGRange := StrSplit(StatRoll , "-")
 	DMGRange[1] := ExtractNumbers(DMGRange[1])
 	DMGRange[2] := ExtractNumbers(DMGRange[2])
@@ -166,9 +166,10 @@ RunReaders:
 		;fix some common ocr missreadings
 		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(150), "-") ; En Dash
 		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(151), "-") ; Em Dash
-		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(176) "/o" , "%") ; Degree /o
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "+63%" , "+6%")
-		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age" , "Damage")	
+		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(176) "/o", "%") ; Degree /o
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "+63%", "+6%")
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age", "Damage")	
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "lmpale", "Impale")
 		
 		FileAppend, % %A_Index%Stat "`n", output-sane.txt
 		
