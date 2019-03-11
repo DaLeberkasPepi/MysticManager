@@ -239,20 +239,22 @@ ExtractNumbers(MyString){
 	lastwasnumber := 0
 	Loop, Parse, MyString
 	{
-		; Only replace O with a zero if adjacent to a number
-		IfInString,A_LoopField,O
-			If (lastwasnumber = 1)
-			{
-				NewVar .= "0"
-				lastwasnumber := 1
-			}
 		If A_LoopField is Number
 		{
 			NewVar .= A_LoopField
 			lastwasnumber := 1
 		}
 		else
-			lastwasnumber := 0
+		{
+			; Only replace O with a zero if adjacent to a number
+			If (lastwasnumber = 1)
+			{
+				IfInString,A_LoopField,O
+					NewVar .= "0"
+				else
+					lastwasnumber := 0
+			}
+		}
 		IfInString,A_LoopField,.
 		{
 			if (firstdot = 0){
