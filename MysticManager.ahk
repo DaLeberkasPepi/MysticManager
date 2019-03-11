@@ -164,6 +164,9 @@ RunReaders:
 		%A_Index%Stat := GetCaptureOutput()
 		
 		;fix some common ocr missreadings
+		%A_Index%Stat := StrReplace(%A_Index%Stat, "~", "-") ; tilde
+		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(0x2013), "-") ; Unicode En Dash
+		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(0x2014), "-") ; Unicode Em Dash
 		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(150), "-") ; En Dash
 		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(151), "-") ; Em Dash
 		%A_Index%Stat := StrReplace(%A_Index%Stat, Chr(176) "/o", "%") ; Degree /o
@@ -171,17 +174,19 @@ RunReaders:
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "Dam age", "Damage")	
 		%A_Index%Stat := StrReplace(%A_Index%Stat, "lmpale", "Impale")
 		
-		FileAppend, % %A_Index%Stat "`n", output-sane.txt
-		
 		IfInString, %A_Index%Stat, -		;must be a dmg range
 		{
 			DMGRange := StrSplit(%A_Index%Stat , "-")
 			DMGRange[1] := ExtractNumbers(DMGRange[1])
 			DMGRange[2] := ExtractNumbers(DMGRange[2])
 			%A_Index%Roll := (DMGRange[1] + DMGRange[2]) / 2	;calculate mean of the lowest and highest dmg numbers
+			
+			FileAppend, % "[Damage Roll " DMGRange[1] "-" DMGRange[2] "] ", output-sane.txt
 		}
 		Else
 			%A_Index%Roll := ExtractNumbers(%A_Index%Stat)
+			
+		FileAppend, % %A_Index%Stat " (" %A_Index%Roll ")`n", output-sane.txt
 	}
 Return
 
@@ -231,10 +236,23 @@ GetCaptureOutput()
 
 ExtractNumbers(MyString){
 	firstdot := 0
+	lastwasnumber := 0
 	Loop, Parse, MyString
 	{
+		; Only replace O with a zero if adjacent to a number
+		IfInString,A_LoopField,O
+			If (lastwasnumber = 1)
+			{
+				NewVar .= "0"
+				lastwasnumber := 1
+			}
 		If A_LoopField is Number
+		{
 			NewVar .= A_LoopField
+			lastwasnumber := 1
+		}
+		else
+			lastwasnumber := 0
 		IfInString,A_LoopField,.
 		{
 			if (firstdot = 0){
