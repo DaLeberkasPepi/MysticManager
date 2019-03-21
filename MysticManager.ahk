@@ -1,13 +1,13 @@
 ;========================================================================
 ;
-; MysticManager v1.0.2
+; MysticManager v1.0.3
 ;
 ; rolls items till the desired stat roll is visible
 ;
 ; Created by DaLeberkasPepi
 ;   https://github.com/DaLeberkasPepi
 ;
-; Last Update: 2019-02-18 20:00 GMT+1
+; Last Update: 2019-03-21 21:00 GMT+1
 ;
 ;========================================================================
 
