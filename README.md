@@ -1,4 +1,8 @@
 # MysticManager 
+```diff
+- ATTENTION: The script is currently not working while TurboHUD is running at the same time because
+- TurboHUD started blocking ocr tools from working!
+```
 This script is written in the Language `AutoHotkey`. The main purpose of this script is to make it possible to reroll items at the Mystic automatically.
 
 ## Usage
